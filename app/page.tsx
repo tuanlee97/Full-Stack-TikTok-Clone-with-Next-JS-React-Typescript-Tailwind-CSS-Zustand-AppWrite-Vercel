@@ -14,7 +14,7 @@ export default function Home() {
       <MainLayout>
         <div className="sm:mt-[80px] w-full sm:max-w-[calc(100vw-80px)] lg:max-w-[calc(100vw-250px)]  ml-auto sm:px-12 ">
           <ClientOnly>
-            <div className="w-full mx-auto scroll-container h-[calc(100vh-60px)] sm:h-[calc(100vh-80px)] overflow-y-scroll scroll-snap-y">
+            <div className="w-full mx-auto scroll-container h-[calc(100lvh-60px)] sm:h-[calc(100lvh-80px)] overflow-y-scroll scroll-snap-y">
               {allPosts.map((post, index) => (
                 <PostMain post={post} key={index} />
               ))}
