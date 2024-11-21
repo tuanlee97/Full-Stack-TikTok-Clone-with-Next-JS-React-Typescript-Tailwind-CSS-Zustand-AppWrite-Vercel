@@ -1,22 +1,24 @@
 "use client"
 
-import { useEffect } from "react"
-import MainLayout from "./layouts/MainLayout"
 import { usePostStore } from "@/app/stores/post"
+import { useEffect } from "react"
 import ClientOnly from "./components/ClientOnly"
 import PostMain from "./components/PostMain"
+import MainLayout from "./layouts/MainLayout"
 
 export default function Home() {
   let { allPosts, setAllPosts } = usePostStore();
-  useEffect(() => { setAllPosts()}, [])
+  useEffect(() => { setAllPosts() }, [])
   return (
     <>
       <MainLayout>
-        <div className="mt-[80px]  w-[calc(100%-90px)] max-w-[690px] ml-auto">
+        <div className="sm:mt-[80px] w-full sm:max-w-[calc(100vw-80px)] lg:max-w-[calc(100vw-250px)]  ml-auto sm:px-12 ">
           <ClientOnly>
-            {allPosts.map((post, index) => (
-              <PostMain post={post} key={index} />
-            ))}
+            <div className="w-full mx-auto scroll-container h-screen overflow-y-scroll scroll-snap-y">
+              {allPosts.map((post, index) => (
+                <PostMain post={post} key={index} />
+              ))}
+            </div>
           </ClientOnly>
         </div>
       </MainLayout>

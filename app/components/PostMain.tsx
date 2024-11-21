@@ -1,79 +1,255 @@
-"use client"
-
-import { AiFillHeart } from "react-icons/ai"
-import { ImMusic } from "react-icons/im"
-import Link from "next/link"
-import { useEffect } from "react"
-import PostMainLikes from "./PostMainLikes"
-import useCreateBucketUrl from "../hooks/useCreateBucketUrl"
-import { PostMainCompTypes } from "../types"
+import { useEffect, useRef, useState } from "react";
+import { FiVolume2 } from "react-icons/fi";
+import useCreateBucketUrl from "../hooks/useCreateBucketUrl";
+import useDeviceType from "../hooks/useDeviceType";
+import { PostMainCompTypes } from "../types";
+import PostMainLikes from "./PostMainLikes";
 
 export default function PostMain({ post }: PostMainCompTypes) {
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const [volume, setVolume] = useState(1); // Quản lý âm lượng (giá trị từ 0 đến 1)
+    const [currentTime, setCurrentTime] = useState(0); // Thời gian hiện tại của video
+    const [showVolumeControl, setShowVolumeControl] = useState(false); // Quản lý hiển thị thanh điều khiển âm lượng
+    const [isDragging, setIsDragging] = useState(false); // Kiểm tra xem người dùng có đang kéo thanh không
+    const [isHover, setIsHover] = useState(false);
 
     useEffect(() => {
-        const video = document.getElementById(`video-${post?.id}`) as HTMLVideoElement
-        const postMainElement = document.getElementById(`PostMain-${post.id}`);
+        const handleUserInteraction = () => {
+            console.log("sssssss")
+            if (videoRef.current) {
+                videoRef.current.muted = false;
+                // videoRef.current.play().catch((err) => {
+                //     console.error("Error playing video:", err);
+                // });
+            }
+        }
+        const events = ['scroll', 'keydown', 'click'];
+        events.forEach(event => {
 
-        if (postMainElement) {
-            let observer = new IntersectionObserver((entries) => {
-                entries[0].isIntersecting ? video.play() : video.pause()
-            }, { threshold: [0.6] });
-        
-            observer.observe(postMainElement);
+            window.addEventListener(event, handleUserInteraction);
+        });
+        return () => {
+            events.forEach(event => {
+                window.removeEventListener(event, handleUserInteraction);
+            });
         }
     }, [])
+    useEffect(() => {
+        if (videoRef.current) {
+            const video = videoRef.current;
+            const postMainElement = document.getElementById(`PostMain-${post.id}`);
 
+            if (postMainElement) {
+                let observer = new IntersectionObserver(
+                    (entries) => {
+                        if (!entries[0].isIntersecting) {
+                            video.pause();
+
+                        } else {
+                            // Khi video hiện thị trong viewport thì chay video
+                            video.play().catch((err) => {
+                                console.error("Error playing video:", err);
+                            });
+
+                        }
+                    },
+                    { threshold: [0.6] }
+                );
+                observer.observe(postMainElement);
+            }
+
+            const handleTimeUpdate = () => {
+                setCurrentTime(video.currentTime);
+
+            };
+
+            video.addEventListener("timeupdate", handleTimeUpdate);
+
+
+            return () => {
+                video.removeEventListener("timeupdate", handleTimeUpdate);
+
+            };
+        }
+    }, [post.id]);
+
+    // Hàm thay đổi âm lượng
+    const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const volumeValue = parseFloat(e.target.value);
+        setVolume(volumeValue);
+        if (videoRef.current) videoRef.current.volume = volumeValue;
+    };
+
+    // Hàm hiển thị/ẩn thanh điều khiển âm lượng khi hover
+    const handleVolumeIconHover = () => {
+        setShowVolumeControl(true);
+    };
+
+    const handleVolumeIconLeave = () => {
+        setShowVolumeControl(false);
+    };
+
+    const handleClickDuration = (e: React.MouseEvent) => {
+        const progressBar = e.currentTarget as HTMLElement;
+        const clickedPosition =
+            (e.clientX - progressBar.getBoundingClientRect().left) /
+            progressBar.offsetWidth;
+        if (videoRef.current) {
+            videoRef.current.currentTime = clickedPosition * videoRef.current.duration;
+        }
+    };
+
+    // Hàm xử lý bắt đầu kéo thanh
+    const handleMouseDown = () => {
+        setIsDragging(true);
+        videoRef.current?.pause();
+    };
+    const handleMouseHover = () => {
+        setIsHover(prev => !prev);
+    };
+    // Hàm xử lý kết thúc kéo thanh
+    const handleMouseUp = () => {
+        setIsDragging(false);
+        videoRef.current?.play();
+    };
+
+    // Hàm xử lý kéo thanh
+    const handleMouseMove = (e: React.MouseEvent | React.TouchEvent) => {
+        console.log(isDragging);
+        if (!isDragging) return;
+        const progressBar = e.currentTarget as HTMLElement; // Ép kiểu thành HTMLElement
+
+        let clientX: number;
+        if ("touches" in e) {
+            // Nếu là sự kiện cảm ứng (touch)
+            clientX = e.touches[0].clientX;
+        } else {
+            // Nếu là sự kiện chuột (mouse)
+            clientX = e.clientX;
+        }
+
+        const draggedPosition =
+            (clientX - progressBar.getBoundingClientRect().left) /
+            progressBar.offsetWidth;
+        if (isDragging && videoRef.current) {
+            videoRef.current.currentTime = draggedPosition * videoRef.current.duration;
+        }
+    };
+    const togglePlayPause = () => {
+        if (videoRef.current) {
+            if (videoRef.current.paused) {
+                videoRef.current.muted = false;
+                videoRef.current.play().catch((err) => {
+                    console.error("Error playing video:", err);
+                });
+
+            } else {
+                videoRef.current.pause();
+            }
+        }
+    };
+    const deviceType = useDeviceType();
     return (
-        <>
-            <div id={`PostMain-${post.id}`} className="flex border-b py-6">
+        <section className="scroll-section h-screen justify-center border-b items-center scroll-snap-align">
+            <div id={`PostMain-${post.id}`} className="flex">
+                <div className="sm:pl-3 w-full sm:px-4">
+                    <div className="sm:mt-2.5 flex justify-center ">
+                        <div className="relative sm:min-h-[calc(100vh-61px] sm:max-w-[480px] w-full flex items-center bg-black sm:rounded-xl cursor-pointer">
+                            <div className="h-[calc(100vh-61px)] sm:h-full">
+                                <video
+                                    onClick={togglePlayPause}
+                                    ref={videoRef}
+                                    id={`video-${post.id}`}
+                                    loop
+                                    muted
+                                    autoPlay
+                                    className="sm:rounded-xl object-cover mx-auto h-full"
+                                    src={useCreateBucketUrl(post?.video_url)}
+                                />
+                                {deviceType !== 'mobile' && (
 
-                <div className="cursor-pointer">
-                    <img className="rounded-full max-h-[60px]" width="60" src={useCreateBucketUrl(post?.profile?.image)} />
-                </div>
 
-                <div className="pl-3 w-full px-4">
-                    <div className="flex items-center justify-between pb-0.5">
-                        <Link href={`/profile/${post.profile.user_id}`}>
-                            <span className="font-bold hover:underline cursor-pointer">
-                                {post.profile.name}
-                            </span>
-                        </Link>
+                                    <div
+                                        onMouseEnter={handleVolumeIconHover}
+                                        onMouseLeave={handleVolumeIconLeave}
+                                        className="flex p-4 volume-control absolute left-0 top-0"
+                                    >
+                                        <label htmlFor="volume">
+                                            <FiVolume2 size={25} color="#FFFFFFE6" />
+                                        </label>
 
-                        <button className="border text-[15px] px-[21px] py-0.5 border-[#F02C56] text-[#F02C56] hover:bg-[#ffeef2] font-semibold rounded-md">
-                            Follow
-                        </button>
-                    </div>
-                    <p className="text-[15px] pb-0.5 break-words md:max-w-[400px] max-w-[300px]">{post.text}</p>
-                    <p className="text-[14px] text-gray-500 pb-0.5">#fun #cool #SuperAwesome</p>
-                    <p className="text-[14px] pb-0.5 flex items-center font-semibold">
-                        <ImMusic size="17"/>
-                        <span className="px-1">original sound - AWESOME</span>
-                        <AiFillHeart size="20"/>
-                    </p>
+                                        {showVolumeControl && (
+                                            <input
+                                                type="range"
+                                                className="volume-progress accent-white/80"
+                                                min="0"
+                                                max="1"
+                                                step="0.01"
+                                                value={volume}
+                                                onChange={handleVolumeChange}
+                                            />
+                                        )}
+                                    </div>
+                                )}
 
-                    <div className="mt-2.5 flex">
-                        <div
-                            className="relative min-h-[480px] max-h-[580px] max-w-[260px] flex items-center bg-black rounded-xl cursor-pointer"
-                        >
-                            <video 
-                                id={`video-${post.id}`}
-                                loop
-                                controls
-                                muted
-                                className="rounded-xl object-cover mx-auto h-full" 
-                                src={useCreateBucketUrl(post?.video_url)}
-                            />
-                            <img 
-                                className="absolute right-2 bottom-10" 
-                                width="90" 
-                                src="/images/tiktok-logo-white.png"
-                            />
+
+                                <div
+                                    className="duration-control absolute left-0 bottom-0 z-10 w-full h-[4px] hover:h-[6px] sm:h-[8px] sm:hover:h-[10px] duration-200 bg-white/30"
+                                    onClick={handleClickDuration}
+                                    onMouseDown={handleMouseDown}
+                                    onMouseUp={handleMouseUp}
+                                    onMouseMove={handleMouseMove}
+                                    onMouseEnter={handleMouseHover}
+                                    onMouseLeave={handleMouseHover}
+                                    onTouchMove={handleMouseMove}
+                                >
+                                    {videoRef.current && (
+                                        <>
+                                            <div
+                                                className="h-full bg-white/90 sm:bg-progress"
+                                                style={
+                                                    deviceType !== 'mobile' ?
+                                                        {
+                                                            clipPath: 'inset(0px round 0px 0px 0px 1rem)',
+                                                            width: `${(videoRef.current.currentTime /
+                                                                videoRef.current.duration) *
+                                                                100}%`,
+                                                        } :
+                                                        {
+
+                                                            width: `${(videoRef.current.currentTime /
+                                                                videoRef.current.duration) *
+                                                                100}%`,
+                                                        }
+                                                }
+                                            ></div>
+
+                                            <div
+                                                className="circle-progress absolute -translate-y-1/2 w-2 h-2 sm:w-4 sm:h-4 rounded-full border bg-white shadow-xl top-1/2"
+                                                style={{
+                                                    left: `${(currentTime / videoRef.current.duration) *
+                                                        100}%`,
+                                                }}
+                                            />
+
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* Nút Play/Pause */}
+                                <div
+                                    onClick={togglePlayPause}
+                                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white z-10"
+                                >
+
+                                </div>
+
+                            </div>
                         </div>
-                        
                         <PostMainLikes post={post} />
                     </div>
                 </div>
             </div>
-        </>
-    )
+        </section>
+    );
 }

@@ -1,16 +1,20 @@
 "use client"
 
-import { AiOutlineHome } from "react-icons/ai"
-import { RiGroupLine } from "react-icons/ri"
-import { BsCameraVideo } from "react-icons/bs"
 import { MenuItemTypes } from "@/app/types"
-
+import { AiOutlineHome } from "react-icons/ai"
+import { CgProfile } from "react-icons/cg"
+import { CiInboxIn } from "react-icons/ci"
+import { MdHomeFilled } from "react-icons/md"
+import { RiCompassDiscoverLine, RiGroupLine } from "react-icons/ri"
 export default function MenuItem({ iconString, colorString, sizeString }: MenuItemTypes) {
 
     const icons = () => {
         if (iconString == 'For You') return <AiOutlineHome size={sizeString} color={colorString} />
         if (iconString == 'Following') return <RiGroupLine size={sizeString} color={colorString} />
-        if (iconString == 'LIVE') return <BsCameraVideo size={sizeString} color={colorString} />
+        if (iconString == 'Discover') return <RiCompassDiscoverLine size={sizeString} color={colorString} />
+        if (iconString == 'Inbox') return <CiInboxIn size={sizeString} color={colorString} />
+        if (iconString == 'Profile') return <CgProfile size={sizeString} color={colorString} />
+        if (iconString == 'Home') return <MdHomeFilled size={sizeString} color={colorString} />
     }
 
     return (
