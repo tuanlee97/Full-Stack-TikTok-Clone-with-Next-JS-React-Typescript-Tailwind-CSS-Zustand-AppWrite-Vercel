@@ -176,6 +176,8 @@ export default function PostMain({ post }: PostMainCompTypes) {
                                     loop
                                     muted
                                     autoPlay
+                                    playsInline
+                                    preload="auto"
                                     className="sm:rounded-xl object-cover mx-auto h-full"
                                     src={useCreateBucketUrl(post?.video_url)}
                                 />
