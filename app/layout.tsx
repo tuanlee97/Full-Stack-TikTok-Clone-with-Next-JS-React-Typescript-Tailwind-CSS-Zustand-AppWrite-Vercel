@@ -13,13 +13,13 @@ export const metadata: Metadata = {
     description: 'Join ChatNail for the latest in nail art, tutorials, trends, and tips for beautiful nails.',
     url: 'https://chatnail.com', // URL trang web của bạn
     type: 'website',
-    images: '/images/n360-card-bg-img.webp', // Thay bằng URL hình ảnh thumbnail
+    images: `${process.env.NEXT_PUBLIC_BASE_URL}/images/n360-card-bg-img.webp`, // Thay bằng URL hình ảnh thumbnail
   },
   twitter: {
     card: 'summary_large_image',
     title: 'ChatNail - Nail Art, Tutorials, & Trends for Beautiful Nails',
     description: 'Join ChatNail for the latest in nail art, tutorials, trends, and tips for beautiful nails.',
-    images: '/images/n360-card-bg-img.webp', // Thay bằng URL hình ảnh thumbnail Twitter
+    images: `${process.env.NEXT_PUBLIC_BASE_URL}/images/n360-card-bg-img.webp`, // Thay bằng URL hình ảnh thumbnail Twitter
   },
 };
 
