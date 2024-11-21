@@ -16,23 +16,60 @@ export default function PostMain({ post }: PostMainCompTypes) {
 
     useEffect(() => {
         const handleUserInteraction = () => {
-            console.log("sssssss")
+            console.log("User interacted");
             if (videoRef.current) {
                 videoRef.current.muted = false;
-                // videoRef.current.play().catch((err) => {
-                //     console.error("Error playing video:", err);
-                // });
             }
         }
+        let startX: number | null = null;
+        let startY: number | null = null;
+
+        const handleTouchStart = (e: TouchEvent) => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        };
+
+        const handleTouchEnd = (e: TouchEvent) => {
+            if (startX === null || startY === null) return;
+
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+
+            const diffX = startX - endX;
+            const diffY = startY - endY;
+
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 50) {
+                    console.log("Swiped left");
+                } else if (diffX < -50) {
+                    console.log("Swiped right");
+                }
+            } else {
+                if (diffY > 50) {
+                    console.log("Swiped up");
+                } else if (diffY < -50) {
+                    console.log("Swiped down");
+                }
+            }
+
+            startX = null;
+            startY = null;
+        };
         const events = ['scroll', 'keydown', 'click'];
         events.forEach(event => {
-
             window.addEventListener(event, handleUserInteraction);
         });
+
+        window.addEventListener("touchstart", handleTouchStart);
+        window.addEventListener("touchend", handleTouchEnd);
+
         return () => {
             events.forEach(event => {
                 window.removeEventListener(event, handleUserInteraction);
             });
+            // Gỡ sự kiện vuốt
+            window.removeEventListener("touchstart", handleTouchStart);
+            window.removeEventListener("touchend", handleTouchEnd);
         }
     }, [])
     useEffect(() => {
