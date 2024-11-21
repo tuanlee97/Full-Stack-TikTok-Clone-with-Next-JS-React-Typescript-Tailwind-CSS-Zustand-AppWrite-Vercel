@@ -38,7 +38,7 @@ export interface Like {
     id: string;
     user_id: string;
     post_id: string;
-  }
+}
 
 export interface Post {
     id: string;
@@ -127,7 +127,8 @@ export interface PostMainCompTypes {
 }
 
 export interface PostMainLikesCompTypes {
-    post: PostWithProfile
+    post: PostWithProfile,
+    isDragging: boolean,
 }
 
 export interface TextInputCompTypes {

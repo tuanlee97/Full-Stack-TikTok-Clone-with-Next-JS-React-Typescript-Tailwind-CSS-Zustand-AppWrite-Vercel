@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FiVolume2 } from "react-icons/fi";
+import { ImMusic } from "react-icons/im";
 import useCreateBucketUrl from "../hooks/useCreateBucketUrl";
 import useDeviceType from "../hooks/useDeviceType";
 import { PostMainCompTypes } from "../types";
@@ -149,14 +150,26 @@ export default function PostMain({ post }: PostMainCompTypes) {
         }
     };
     const deviceType = useDeviceType();
+
     return (
-        <section className="scroll-section h-screen justify-center border-b items-center scroll-snap-align">
-            <div id={`PostMain-${post.id}`} className="flex">
+        <section className="scroll-section h-full justify-center border-b items-center scroll-snap-align">
+            <div id={`PostMain-${post.id}`} className="flex h-full">
                 <div className="sm:pl-3 w-full sm:px-4">
-                    <div className="sm:mt-2.5 flex justify-center ">
-                        <div className="relative sm:min-h-[calc(100vh-61px] sm:max-w-[480px] w-full flex items-center bg-black sm:rounded-xl cursor-pointer">
-                            <div className="h-[calc(100vh-61px)] sm:h-full">
+                    <div className="sm:mt-2.5 flex justify-center h-full sm:h-[calc(100%-40px)]">
+                        <div className="relative w-max flex items-center bg-black sm:rounded-xl cursor-pointer">
+                            <>
+                                <div className={`${isDragging ? 'opacity-50' : 'opacity-100'} absolute sm:rounded-xl left-0 w-full bottom-0 p-4 text-white text-sm bg-gradient-to-t from-black to-transparent`}>
+                                    <p className="text-[15px] pb-0.5 break-words md:max-w-[400px] max-w-[300px] font-semibold">{post.profile.name}</p>
+                                    <p className="text-[15px] pb-0.5 break-words md:max-w-[400px] max-w-[300px]">{post.text}</p>
+                                    <p className="text-[14px] text-white pb-0.5">#fun #cool #SuperAwesome</p>
+                                    <p className="text-[14px] pb-0.5 flex items-center ">
+                                        <ImMusic size="14" />
+                                        <span className="px-1">original sound - AWESOME</span>
+                                    </p>
+                                </div>
                                 <video
+                                    onTouchStart={() => setIsDragging(true)}
+                                    onTouchEnd={() => setIsDragging(false)}
                                     onClick={togglePlayPause}
                                     ref={videoRef}
                                     id={`video-${post.id}`}
@@ -167,8 +180,6 @@ export default function PostMain({ post }: PostMainCompTypes) {
                                     src={useCreateBucketUrl(post?.video_url)}
                                 />
                                 {deviceType !== 'mobile' && (
-
-
                                     <div
                                         onMouseEnter={handleVolumeIconHover}
                                         onMouseLeave={handleVolumeIconLeave}
@@ -201,16 +212,16 @@ export default function PostMain({ post }: PostMainCompTypes) {
                                     onMouseMove={handleMouseMove}
                                     onMouseEnter={handleMouseHover}
                                     onMouseLeave={handleMouseHover}
-                                    onTouchMove={handleMouseMove}
+
                                 >
                                     {videoRef.current && (
                                         <>
                                             <div
-                                                className="h-full bg-white/90 sm:bg-progress"
+                                                className="h-full bg-white/90 sm:bg-progress "
                                                 style={
                                                     deviceType !== 'mobile' ?
                                                         {
-                                                            clipPath: 'inset(0px round 0px 0px 0px 1rem)',
+                                                            clipPath: 'inset(0px round 0px 0px 0px 0.5rem)',
                                                             width: `${(videoRef.current.currentTime /
                                                                 videoRef.current.duration) *
                                                                 100}%`,
@@ -244,9 +255,9 @@ export default function PostMain({ post }: PostMainCompTypes) {
 
                                 </div>
 
-                            </div>
+                            </>
                         </div>
-                        <PostMainLikes post={post} />
+                        <PostMainLikes isDragging={isDragging} post={post} />
                     </div>
                 </div>
             </div>

@@ -13,7 +13,7 @@ import useIsLiked from "../hooks/useIsLiked"
 import { useGeneralStore } from "../stores/general"
 import { Comment, Like, PostMainLikesCompTypes } from "../types"
 
-export default function PostMainLikes({ post }: PostMainLikesCompTypes) {
+export default function PostMainLikes({ post, isDragging }: PostMainLikesCompTypes) {
 
     let { setIsLoginOpen } = useGeneralStore();
 
@@ -89,7 +89,7 @@ export default function PostMainLikes({ post }: PostMainLikesCompTypes) {
 
     return (
         <>
-            <div id={`PostMainLikes-${post?.id}`} className="relative z-10 right-[60px] bottom-10 sm:right-0 sm:mr-[75px]">
+            <div id={`PostMainLikes-${post?.id}`} className={`${isDragging ? 'opacity-50' : 'opacity-100'} relative z-10 right-[60px] bottom-28 sm:right-0 sm:mr-[75px]`}>
                 <div className="absolute bottom-0 pl-2">
                     <div className="cursor-pointer pb-4">
                         <img className="rounded-full max-h-[60px]" width="60" src={useCreateBucketUrl(post?.profile?.image)} />
