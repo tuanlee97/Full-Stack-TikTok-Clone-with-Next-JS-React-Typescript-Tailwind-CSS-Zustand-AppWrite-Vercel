@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FiVolume2 } from "react-icons/fi";
 import { ImMusic } from "react-icons/im";
 import useCreateBucketUrl from "../hooks/useCreateBucketUrl";
@@ -14,55 +14,19 @@ export default function PostMain({ post }: PostMainCompTypes) {
     const [isDragging, setIsDragging] = useState(false); // Kiểm tra xem người dùng có đang kéo thanh không
     const [isHover, setIsHover] = useState(false);
 
-    useEffect(() => {
-        const handleUserInteraction = () => {
-            console.log("User interacted");
-            if (videoRef.current) {
-                videoRef.current.muted = false;
-            }
+    const handleUserInteraction = useCallback(() => {
+        if (videoRef.current) {
+            videoRef.current.muted = false;
         }
-        // let startX: number | null = null;
-        // let startY: number | null = null;
+    }, []);
 
-        // const handleTouchStart = (e: TouchEvent) => {
-        // startX = e.touches[0].clientX;
-        // startY = e.touches[0].clientY;
-        // console.log("Touch started");
-        // };
-
-        // const handleTouchEnd = (e: TouchEvent) => {
-        //     if (startX === null || startY === null) return;
-
-        //     const endX = e.changedTouches[0].clientX;
-        //     const endY = e.changedTouches[0].clientY;
-
-        //     const diffX = startX - endX;
-        //     const diffY = startY - endY;
-
-        //     if (Math.abs(diffX) > Math.abs(diffY)) {
-        //         if (diffX > 50) {
-        //             console.log("Swiped left");
-        //         } else if (diffX < -50) {
-        //             console.log("Swiped right");
-        //         }
-        //     } else {
-        //         if (diffY > 50) {
-        //             console.log("Swiped up");
-        //         } else if (diffY < -50) {
-        //             console.log("Swiped down");
-        //         }
-        //     }
-
-        //     startX = null;
-        //     startY = null;
-        // };
-        const events = ['scroll', 'keydown', 'click'];
+    useEffect(() => {
+        const events = ['keydown', 'click'];
         events.forEach(event => {
             window.addEventListener(event, handleUserInteraction);
         });
 
         window.addEventListener("touchstart", handleUserInteraction);
-        // window.addEventListener("touchend", handleTouchEnd);
 
         return () => {
             events.forEach(event => {
@@ -72,7 +36,8 @@ export default function PostMain({ post }: PostMainCompTypes) {
             window.removeEventListener("touchstart", handleUserInteraction);
             // window.removeEventListener("touchend", handleTouchEnd);
         }
-    }, [])
+    }, [handleUserInteraction]);
+
     useEffect(() => {
         if (videoRef.current) {
             const video = videoRef.current;
@@ -96,28 +61,15 @@ export default function PostMain({ post }: PostMainCompTypes) {
                 );
                 observer.observe(postMainElement);
             }
-
-            const handleTimeUpdate = () => {
-                setCurrentTime(video.currentTime);
-
-            };
-
-            video.addEventListener("timeupdate", handleTimeUpdate);
-
-
-            return () => {
-                video.removeEventListener("timeupdate", handleTimeUpdate);
-
-            };
         }
     }, [post.id]);
 
     // Hàm thay đổi âm lượng
-    const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleVolumeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const volumeValue = parseFloat(e.target.value);
         setVolume(volumeValue);
         if (videoRef.current) videoRef.current.volume = volumeValue;
-    };
+    }, []);
 
     // Hàm hiển thị/ẩn thanh điều khiển âm lượng khi hover
     const handleVolumeIconHover = () => {
@@ -128,15 +80,13 @@ export default function PostMain({ post }: PostMainCompTypes) {
         setShowVolumeControl(false);
     };
 
-    const handleClickDuration = (e: React.MouseEvent) => {
+    const handleClickDuration = useCallback((e: React.MouseEvent) => {
         const progressBar = e.currentTarget as HTMLElement;
-        const clickedPosition =
-            (e.clientX - progressBar.getBoundingClientRect().left) /
-            progressBar.offsetWidth;
+        const clickedPosition = (e.clientX - progressBar.getBoundingClientRect().left) / progressBar.offsetWidth;
         if (videoRef.current) {
             videoRef.current.currentTime = clickedPosition * videoRef.current.duration;
         }
-    };
+    }, []);
 
     // Hàm xử lý bắt đầu kéo thanh
     const handleMouseDown = () => {
@@ -154,8 +104,8 @@ export default function PostMain({ post }: PostMainCompTypes) {
 
     // Hàm xử lý kéo thanh
     const handleMouseMove = (e: React.MouseEvent | React.TouchEvent) => {
-        console.log(isDragging);
-        if (!isDragging) return;
+        if (!isDragging || !videoRef.current) return;
+        ;
         const progressBar = e.currentTarget as HTMLElement; // Ép kiểu thành HTMLElement
 
         let clientX: number;
@@ -170,11 +120,11 @@ export default function PostMain({ post }: PostMainCompTypes) {
         const draggedPosition =
             (clientX - progressBar.getBoundingClientRect().left) /
             progressBar.offsetWidth;
-        if (isDragging && videoRef.current) {
-            videoRef.current.currentTime = draggedPosition * videoRef.current.duration;
-        }
+
+        videoRef.current.currentTime = draggedPosition * videoRef.current.duration;
+
     };
-    const togglePlayPause = () => {
+    const togglePlayPause = useCallback(() => {
         if (videoRef.current) {
             if (videoRef.current.paused) {
                 videoRef.current.muted = false;
@@ -185,6 +135,17 @@ export default function PostMain({ post }: PostMainCompTypes) {
             } else {
                 videoRef.current.pause();
             }
+        }
+    }, []);
+    const handleVideoTimeUpdate = useCallback(() => {
+        if (videoRef.current) {
+            setCurrentTime(videoRef.current.currentTime);
+        }
+    }, []);
+    const handleModalClose = (modalCurrentTime: number) => {
+        setCurrentTime(modalCurrentTime); // Cập nhật lại currentTime từ modal về cha
+        if (videoRef.current) {
+            videoRef.current.currentTime = modalCurrentTime; // Cập nhật video ngoài với currentTime mới
         }
     };
     const deviceType = useDeviceType();
@@ -218,6 +179,7 @@ export default function PostMain({ post }: PostMainCompTypes) {
                                     preload="auto"
                                     className="sm:rounded-xl object-cover mx-auto h-full"
                                     src={useCreateBucketUrl(post?.video_url)}
+                                    onTimeUpdate={handleVideoTimeUpdate}
                                 />
                                 {deviceType !== 'mobile' && (
                                     <div
@@ -276,7 +238,7 @@ export default function PostMain({ post }: PostMainCompTypes) {
                                             ></div>
 
                                             <div
-                                                className="circle-progress absolute -translate-y-1/2 w-2 h-2 sm:w-4 sm:h-4 rounded-full border bg-white shadow-xl top-1/2"
+                                                className="circle-progress absolute z-10 -translate-y-1/2 w-2 h-2 sm:w-4 sm:h-4 rounded-full border bg-white shadow-xl top-1/2"
                                                 style={{
                                                     left: `${(currentTime / videoRef.current.duration) *
                                                         100}%`,
@@ -297,7 +259,7 @@ export default function PostMain({ post }: PostMainCompTypes) {
 
                             </>
                         </div>
-                        <PostMainLikes isDragging={isDragging} post={post} />
+                        <PostMainLikes togglePlayPause={togglePlayPause} onModalClose={handleModalClose} isDragging={isDragging} currentTime={currentTime} post={post} />
                     </div>
                 </div>
             </div>

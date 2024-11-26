@@ -1,16 +1,16 @@
 "use client"
 
-import PostUser from "@/app/components/profile/PostUser"
-import MainLayout from "@/app/layouts/MainLayout"
-import { BsPencil } from "react-icons/bs"
-import { useEffect } from "react"
-import { useUser } from "@/app/context/user"
 import ClientOnly from "@/app/components/ClientOnly"
-import { ProfilePageTypes, User } from "@/app/types"
+import PostUser from "@/app/components/profile/PostUser"
+import { useUser } from "@/app/context/user"
+import useCreateBucketUrl from "@/app/hooks/useCreateBucketUrl"
+import MainLayout from "@/app/layouts/MainLayout"
+import { useGeneralStore } from "@/app/stores/general"
 import { usePostStore } from "@/app/stores/post"
 import { useProfileStore } from "@/app/stores/profile"
-import { useGeneralStore } from "@/app/stores/general"
-import useCreateBucketUrl from "@/app/hooks/useCreateBucketUrl"
+import { ProfilePageTypes, User } from "@/app/types"
+import { useEffect } from "react"
+import { BsPencil } from "react-icons/bs"
 
 export default function Profile({ params }: ProfilePageTypes) {
     const contextUser = useUser()
@@ -26,9 +26,9 @@ export default function Profile({ params }: ProfilePageTypes) {
     return (
         <>
             <MainLayout>
-                <div className="pt-[90px] ml-[90px] 2xl:pl-[185px] lg:pl-[160px] lg:pr-0 w-[calc(100%-90px)] pr-3 max-w-[1800px] 2xl:mx-auto">
+                <div className="pt-[90px] ml-[90px] 2xl:pl-[240px] lg:pl-[200px] lg:pr-0 w-[calc(100%-90px)] pr-3 max-w-[1800px] 2xl:mx-auto">
 
-                    <div className="flex w-[calc(100vw-230px)]">
+                    <div className="flex w-[calc(100vw-240px)]">
 
                         <ClientOnly>
                             {currentProfile ? (
@@ -50,13 +50,13 @@ export default function Profile({ params }: ProfilePageTypes) {
                                 )}
                             </ClientOnly>
 
-                            
+
                             {contextUser?.user?.id == params?.id ? (
-                                <button 
+                                <button
                                     onClick={() => setIsEditProfileOpen(isEditProfileOpen = !isEditProfileOpen)}
                                     className="flex item-center rounded-md py-1.5 px-3.5 mt-3 text-[15px] font-semibold border hover:bg-gray-100"
                                 >
-                                    <BsPencil className="mt-0.5 mr-1" size="18"/>
+                                    <BsPencil className="mt-0.5 mr-1" size="18" />
                                     <span>Edit profile</span>
                                 </button>
                             ) : (

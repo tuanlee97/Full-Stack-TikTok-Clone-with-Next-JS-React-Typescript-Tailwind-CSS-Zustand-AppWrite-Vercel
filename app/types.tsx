@@ -5,7 +5,16 @@ export interface UserContextTypes {
     logout: () => Promise<void>;
     checkUser: () => Promise<void>;
 }
-
+export interface VideoContextType {
+    currentIndex: number;
+    setCurrentIndex: (index: number) => void;
+}
+export interface ShareModalProps {
+    isOpen: boolean;
+    closeModal: () => void;
+    postUrl: string;
+    postText: string;
+}
 export interface User {
     id: string,
     name: string,

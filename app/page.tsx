@@ -1,18 +1,35 @@
 "use client"
 
 import { usePostStore } from "@/app/stores/post"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import ClientOnly from "./components/ClientOnly"
 import PostMain from "./components/PostMain"
+import { VideoContext } from "./context/video"
 import MainLayout from "./layouts/MainLayout"
-
 export default function Home() {
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
   let { allPosts, setAllPosts } = usePostStore();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     setAllPosts()
     setIsLoading(false)
   }, [])
+  // Hàm cuộn đến video hiện tại
+  const scrollToCurrentVideo = () => {
+    if (videoContainerRef.current) {
+      const videoElement = videoContainerRef.current.children[currentIndex] as HTMLElement;
+      if (videoElement) {
+        videoElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center", // Căn giữa video trong màn hình
+        });
+      }
+    }
+  };
+  useEffect(() => {
+    scrollToCurrentVideo();
+  }, [currentIndex]);
   if (isLoading) return <div className="bg-black sm:bg-white sm:dark:bg-black flex justify-center items-center h-[calc(100dvh)] ">
     <svg className="animate-zoom-in-out py-2" width={287} height={153} viewBox="0 0 187 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g clipPath="url(#clip0_654_4130)">
@@ -39,10 +56,12 @@ export default function Home() {
       <MainLayout>
         <div className="sm:mt-[80px] w-full sm:max-w-[calc(100vw-80px)] lg:max-w-[calc(100vw-250px)]  ml-auto sm:px-12 ">
           <ClientOnly>
-            <div className="w-full mx-auto scroll-container h-[calc(100dvh-60px)] sm:h-[calc(100dvh-80px)] overflow-y-scroll scroll-snap-y">
-              {allPosts.map((post, index) => (
-                <PostMain post={post} key={index} />
-              ))}
+            <div ref={videoContainerRef} className="w-full mx-auto scroll-container h-[calc(100dvh-60px)] sm:h-[calc(100dvh-80px)] overflow-y-scroll scroll-snap-y scrollbar-w-0">
+              <VideoContext.Provider value={{ currentIndex, setCurrentIndex }}>
+                {allPosts.map((post) => (
+                  <PostMain key={post.id} post={post} />
+                ))}
+              </VideoContext.Provider>
             </div>
           </ClientOnly>
         </div>
@@ -50,4 +69,3 @@ export default function Home() {
     </>
   )
 }
-

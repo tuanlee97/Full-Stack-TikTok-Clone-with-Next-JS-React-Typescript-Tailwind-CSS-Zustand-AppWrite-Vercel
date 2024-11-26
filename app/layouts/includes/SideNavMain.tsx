@@ -35,7 +35,7 @@ export default function SideNavMain() {
             {deviceType !== 'mobile' ? (
                 <div
                     id="SideNavMain"
-                    className={`fixed z-20 bg-white pt-[70px] h-full lg:border-r-0 border-r w-[75px] overflow-auto lg:w-[240px]`}>
+                    className={`fixed z-10 bg-white mt-[70px] h-full lg:border-r-0 border-r w-[75px] overflow-auto lg:w-[240px]`}>
 
                     <div className="lg:w-full w-[55px] mx-auto">
                         <Link href="/">
