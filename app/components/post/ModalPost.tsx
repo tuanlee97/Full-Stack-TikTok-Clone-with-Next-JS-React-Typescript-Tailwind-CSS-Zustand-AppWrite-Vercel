@@ -48,9 +48,9 @@ const ModalPost: React.FC<PostMainCompTypes & ActionProps> = ({ post, closeModal
     }
 
     return (
-        <div id="PostPage" className="lg:flex justify-between w-full h-screen bg-black overflow-auto">
+        <div id="PostPage" className="lg:flex justify-between w-full sm:h-screen  sm:bg-black">
             {/* Video */}
-            <div className="lg:w-[calc(100%-540px)] h-full relative">
+            <div className="hidden sm:block lg:w-[calc(100%-540px)] h-full relative">
                 <div onClick={closeModal}
                     className="absolute text-white z-20 m-5 rounded-full bg-gray-700 p-1.5 hover:bg-gray-800">
                     <AiOutlineClose size="27" />
@@ -60,7 +60,7 @@ const ModalPost: React.FC<PostMainCompTypes & ActionProps> = ({ post, closeModal
 
                         <button
                             onClick={() => loopThroughPostsUp()}
-                            className={`${currentIndex > 0 ? 'opacity-100' : 'opacity-0'} flex items-center justify-center rounded-full bg-gray-700 p-1.5 hover:bg-gray-800`}
+                            className={`${currentIndex > 0 ? 'opacity-100' : 'opacity-20 select-none cursor-not-allowed'} flex items-center justify-center rounded-full bg-gray-700 p-1.5 hover:bg-gray-800`}
                         >
                             <BiChevronUp size="30" color="#FFFFFF" />
                         </button>
@@ -68,7 +68,7 @@ const ModalPost: React.FC<PostMainCompTypes & ActionProps> = ({ post, closeModal
 
                         <button
                             onClick={() => loopThroughPostsDown()}
-                            className={`${currentIndex < allPosts.length - 1 ? 'opacity-100' : 'opacity-0'} flex items-center justify-center rounded-full bg-gray-700 p-1.5 hover:bg-gray-800`}
+                            className={`${currentIndex < allPosts.length - 1 ? 'opacity-100' : 'opacity-20 select-none cursor-not-allowed'} flex items-center justify-center rounded-full bg-gray-700 p-1.5 hover:bg-gray-800`}
                         >
                             <BiChevronDown size="30" color="#FFFFFF" />
                         </button>
@@ -102,14 +102,18 @@ const ModalPost: React.FC<PostMainCompTypes & ActionProps> = ({ post, closeModal
                 </div>
             </div>
             {/* Comment */}
-            <div id="InfoSection" className="lg:max-w-[550px] relative w-full h-full bg-white">
-                <div className="py-7" />
-
+            <div id="InfoSection" className="lg:max-w-[550px] relative w-full h-full rounded-t-[20px] bg-black sm:bg-white">
+                <div className="sm:py-7" />
+                <div onClick={closeModal}
+                    className="flex sm:hidden justify-end text-white  px-5 pt-4">
+                    <AiOutlineClose size="24" />
+                </div>
                 <ClientOnly>
                     {post ? (
                         <CommentsHeader post={post}
                             params={params} />
                     ) : null}
+
                 </ClientOnly>
                 <Comments params={params} />
             </div>

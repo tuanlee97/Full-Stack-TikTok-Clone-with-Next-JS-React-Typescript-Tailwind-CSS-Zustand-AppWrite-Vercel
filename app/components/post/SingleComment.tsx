@@ -1,13 +1,13 @@
 import { useUser } from "@/app/context/user"
+import useCreateBucketUrl from "@/app/hooks/useCreateBucketUrl"
+import useDeleteComment from "@/app/hooks/useDeleteComment"
+import { useCommentStore } from "@/app/stores/comment"
+import { SingleCommentCompTypes } from "@/app/types"
+import moment from "moment"
 import Link from "next/link"
 import { useState } from "react"
 import { BiLoaderCircle } from "react-icons/bi"
 import { BsTrash3 } from "react-icons/bs"
-import { useCommentStore } from "@/app/stores/comment"
-import moment from "moment"
-import useDeleteComment from "@/app/hooks/useDeleteComment"
-import useCreateBucketUrl from "@/app/hooks/useCreateBucketUrl"
-import { SingleCommentCompTypes } from "@/app/types"
 
 export default function SingleComment({ comment, params }: SingleCommentCompTypes) {
 
@@ -34,36 +34,36 @@ export default function SingleComment({ comment, params }: SingleCommentCompType
             <div id="SingleComment" className="flex items-center justify-between px-8 mt-4">
                 <div className="flex items-center relative w-full">
                     <Link href={`/profile/${comment.profile.user_id}`}>
-                        <img 
-                            className="absolute top-0 rounded-full lg:mx-0 mx-auto" 
-                            width="40" 
+                        <img
+                            className="absolute top-0 rounded-full lg:mx-0 mx-auto"
+                            width="40"
                             src={useCreateBucketUrl(comment.profile.image)}
                         />
                     </Link>
                     <div className="ml-14 pt-0.5 w-full">
 
-                        <div className="text-[18px] font-semibold flex items-center justify-between">
-                            <span className="flex items-center">
-                                {comment?.profile?.name} - 
-                                <span className="text-[12px] text-gray-600 font-light ml-1">
+                        <div className="text-[18px] font-semibold text-white sm:text-gray-600 flex items-center justify-between">
+                            <span className="flex  flex-col sm:flex-row sm:items-center">
+                                <p className="text-[15px]">{comment?.profile?.name}</p>
+                                <span className="text-[12px] text-white sm:text-gray-600 font-light sm:ml-1">
                                     {moment(comment?.created_at).calendar()}
                                 </span>
                             </span>
 
                             {contextUser?.user?.id == comment.profile.user_id ? (
-                                <button 
-                                    disabled={isDeleting} 
+                                <button
+                                    disabled={isDeleting}
                                     onClick={() => deleteThisComment()}
                                 >
-                                    {isDeleting 
-                                        ? <BiLoaderCircle className="animate-spin" color="#E91E62" size="20"/>
-                                        : <BsTrash3 className="cursor-pointer" size="25"/>
+                                    {isDeleting
+                                        ? <BiLoaderCircle className="animate-spin" color="#E91E62" size="20" />
+                                        : <BsTrash3 className="cursor-pointer" size="16" />
                                     }
                                 </button>
                             ) : null}
                         </div>
-                        
-                        <p className="text-[15px] font-light">{comment.text}</p>
+
+                        <p className="text-[15px] text-white font-semibold sm:text-black">{comment.text}</p>
 
                     </div>
                 </div>

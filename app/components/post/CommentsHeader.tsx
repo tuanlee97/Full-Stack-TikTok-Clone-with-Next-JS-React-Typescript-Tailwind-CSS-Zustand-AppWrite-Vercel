@@ -1,24 +1,24 @@
 "use client"
 
-import Link from "next/link"
-import { AiFillHeart } from "react-icons/ai"
-import { BsChatDots, BsTrash3 } from "react-icons/bs"
-import { ImMusic } from "react-icons/im"
-import moment from "moment"
 import { useUser } from "@/app/context/user"
-import { useEffect, useState } from "react"
-import { BiLoaderCircle } from "react-icons/bi"
-import ClientOnly from "../ClientOnly"
 import useCreateBucketUrl from "@/app/hooks/useCreateBucketUrl"
-import { useLikeStore } from "@/app/stores/like"
-import { useCommentStore } from "@/app/stores/comment"
-import { useGeneralStore } from "@/app/stores/general"
-import { useRouter } from "next/navigation"
-import useIsLiked from "@/app/hooks/useIsLiked"
 import useCreateLike from "@/app/hooks/useCreateLike"
 import useDeleteLike from "@/app/hooks/useDeleteLike"
 import useDeletePostById from "@/app/hooks/useDeletePostById"
+import useIsLiked from "@/app/hooks/useIsLiked"
+import { useCommentStore } from "@/app/stores/comment"
+import { useGeneralStore } from "@/app/stores/general"
+import { useLikeStore } from "@/app/stores/like"
 import { CommentsHeaderCompTypes } from "@/app/types"
+import moment from "moment"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { AiFillHeart } from "react-icons/ai"
+import { BiLoaderCircle } from "react-icons/bi"
+import { BsChatDots, BsTrash3 } from "react-icons/bs"
+import { ImMusic } from "react-icons/im"
+import ClientOnly from "../ClientOnly"
 
 export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes) {
 
@@ -32,12 +32,12 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
     const [isDeleteing, setIsDeleteing] = useState<boolean>(false)
     const [userLiked, setUserLiked] = useState<boolean>(false)
 
-    useEffect(() => { 
-        setCommentsByPost(params?.postId) 
+    useEffect(() => {
+        setCommentsByPost(params?.postId)
         setLikesByPost(params?.postId)
     }, [post])
     useEffect(() => { hasUserLikedPost() }, [likesByPost])
-    
+
     const hasUserLikedPost = () => {
         if (likesByPost.length < 1 || !contextUser?.user?.id) {
             setUserLiked(false)
@@ -82,7 +82,7 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
         } else {
             likesByPost.forEach(like => {
                 if (contextUser?.user?.id && contextUser.user.id == like.user_id && like.post_id == params.postId) {
-                    unlike(like.id) 
+                    unlike(like.id)
                 }
             })
         }
@@ -105,7 +105,7 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
         }
     }
     return (
-        <>
+        <div className="hidden sm:block">
             <div className="flex items-center justify-between px-8">
                 <div className="flex items-center">
                     <Link href={`/profile/${post?.user_id}`}>
@@ -117,8 +117,8 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
                     </Link>
                     <div className="ml-3 pt-0.5">
 
-                        <Link 
-                            href={`/profile/${post?.user_id}`} 
+                        <Link
+                            href={`/profile/${post?.user_id}`}
                             className="relative z-10 text-[17px] font-semibold hover:underline"
                         >
                             {post?.profile.name}
@@ -135,10 +135,10 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
                 {contextUser?.user?.id == post?.user_id ? (
                     <div>
                         {isDeleteing ? (
-                            <BiLoaderCircle className="animate-spin" size="25"/>
+                            <BiLoaderCircle className="animate-spin" size="25" />
                         ) : (
                             <button disabled={isDeleteing} onClick={() => deletePost()}>
-                                <BsTrash3 className="cursor-pointer" size="25"/>
+                                <BsTrash3 className="cursor-pointer" size="25" />
                             </button>
                         )}
                     </div>
@@ -148,22 +148,22 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
             <p className="px-8 mt-4 text-sm">{post?.text}</p>
 
             <p className="flex item-center gap-2 px-8 mt-4 text-sm font-bold">
-                <ImMusic size="17"/>
+                <ImMusic size="17" />
                 original sound - {post?.profile.name}
             </p>
 
             <div className="flex items-center px-8 mt-8">
                 <ClientOnly>
                     <div className="pb-4 text-center flex items-center">
-                        <button 
+                        <button
                             disabled={hasClickedLike}
-                            onClick={() => likeOrUnlike()} 
+                            onClick={() => likeOrUnlike()}
                             className="rounded-full bg-gray-200 p-2 cursor-pointer"
                         >
                             {!hasClickedLike ? (
-                                <AiFillHeart color={likesByPost.length > 0 && userLiked ? '#ff2626' : ''} size="25"/>
+                                <AiFillHeart color={likesByPost.length > 0 && userLiked ? '#ff2626' : ''} size="25" />
                             ) : (
-                                <BiLoaderCircle className="animate-spin" size="25"/>
+                                <BiLoaderCircle className="animate-spin" size="25" />
                             )}
                         </button>
                         <span className="text-xs pl-2 pr-4 text-gray-800 font-semibold">
@@ -179,6 +179,6 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
                     <span className="text-xs pl-2 text-gray-800 font-semibold">{commentsByPost?.length}</span>
                 </div>
             </div>
-        </>
+        </div>
     )
 }

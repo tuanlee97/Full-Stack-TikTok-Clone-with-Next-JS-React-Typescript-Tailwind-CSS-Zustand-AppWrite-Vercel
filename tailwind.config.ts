@@ -20,6 +20,8 @@ const config: Config = {
         'zoom-in': 'zoomIn 0.5s ease-in-out',
         'zoom-out': 'zoomOut 0.5s ease-in-out',
         'zoom-in-out': 'zoomInOut 1.5s ease-in-out infinite',
+        'slide-up': 'slideUp 0.5s ease-out',
+        'slide-down': 'slideDown 0.5s ease-out',
       },
       keyframes: {
         zoomIn: {
@@ -48,6 +50,14 @@ const config: Config = {
           '100%': {
             transform: 'scale(1)',   // Quay lại kích thước ban đầu
           },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(100%)', opacity: '0' }, // Bắt đầu từ dưới và mờ đi
+          '100%': { transform: 'translateY(0)', opacity: '1' },    // Cuối cùng là ở vị trí gốc và hiện lên
+        },
+        slideDown: {
+          '0%': { transform: 'translateY(0%)', opacity: '1' }, // Bắt đầu từ dưới và mờ đi
+          '100%': { transform: 'translateY(-100)', opacity: '0' },    // Cuối cùng là ở vị trí gốc và hiện lên
         },
       },
     },

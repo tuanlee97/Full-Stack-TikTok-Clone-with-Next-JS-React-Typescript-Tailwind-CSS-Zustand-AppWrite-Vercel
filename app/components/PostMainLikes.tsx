@@ -110,7 +110,7 @@ export default function PostMainLikes({ post, isDragging, currentTime, togglePla
     }
     const openModal = (postProfileId: string, postId: string) => {
         setIsModalOpen(true);
-        changeUrl(`/post/${postProfileId}/${postId}`);
+        changeUrl(`/post/${postId}/${postProfileId}`);
         handlePlayPause();
     };
     // Khi đóng modal, gửi currentTime từ video trong modal về parent
@@ -125,7 +125,7 @@ export default function PostMainLikes({ post, isDragging, currentTime, togglePla
     const changeUrl = (url: string) => {
         window.history.replaceState({}, '', url);
     };
-    const openModalShare = () => {
+    const openModalShare = (postProfileId: string, postId: string) => {
         setIsModalShareOpen(true);
     };
 
@@ -133,15 +133,15 @@ export default function PostMainLikes({ post, isDragging, currentTime, togglePla
         setIsModalShareOpen(false);
     };
 
-    const postUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/post/${post?.profile?.user_id}/${post?.id}`;
+    const postUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/post/${post?.id}/${post?.profile?.user_id}`;
     const postText = "Check out this amazing video!";
     return (
         <>
             <div id={`PostMainLikes-${post?.id}`} className={`${isDragging ? 'opacity-50' : 'opacity-100'} relative right-[60px] bottom-28 sm:right-0 sm:mr-[75px]`}>
                 <div className="absolute bottom-0 pl-2">
-                    <div className="cursor-pointer pb-4">
+                    <button className="cursor-pointer pb-4" onClick={() => router.push(`/profile/${post?.profile?.user_id}`)}>
                         <img className="rounded-full max-h-[60px]" width="60" src={useCreateBucketUrl(post?.profile?.image)} />
-                    </div>
+                    </button>
                     <div className="pb-4 text-center">
                         <button
                             disabled={hasClickedLike}
@@ -175,7 +175,7 @@ export default function PostMainLikes({ post, isDragging, currentTime, togglePla
                     <Modal isOpen={isModalOpen} onClose={closeModal}>
                         <ModalPost post={post} closeModal={closeModal} videoRef={videoRef} />
                     </Modal>
-                    <button className="text-center" onClick={openModalShare}>
+                    <button className="text-center" onClick={() => openModalShare(post?.profile?.user_id, post?.id)}>
                         <div className="rounded-full bg-gray-200 p-2 cursor-pointer">
                             <FaShare size="25" />
                         </div>

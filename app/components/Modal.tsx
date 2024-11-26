@@ -12,11 +12,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
 
     return (
         <div
-            className="modal fixed inset-0 bg-black w-screen flex justify-center items-center z-50"
+            className={`animate-slide-up sm:animate-none modal fixed sm:max-h-full left-0 bottom-0 sm:inset-0  w-screen bg-transparent flex justify-center items-center z-50`}
             onClick={onClose}
         >
             <div
-                className="bg-white rounded-lg w-full relative"
+                className="sm:bg-white rounded-lg w-full relative"
                 onClick={(e) => e.stopPropagation()}
             >
                 <button

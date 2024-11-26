@@ -1,12 +1,12 @@
-import { useState } from "react"
-import SingleComment from "./SingleComment"
 import { useUser } from "@/app/context/user"
-import { BiLoaderCircle } from "react-icons/bi"
-import ClientOnly from "../ClientOnly"
+import useCreateComment from '@/app/hooks/useCreateComment'
 import { useCommentStore } from "@/app/stores/comment"
-import useCreateComment from '@/app/hooks/useCreateComment' 
 import { useGeneralStore } from "@/app/stores/general"
 import { CommentsCompTypes } from "@/app/types"
+import { useState } from "react"
+import { BiLoaderCircle } from "react-icons/bi"
+import ClientOnly from "../ClientOnly"
+import SingleComment from "./SingleComment"
 
 export default function Comments({ params }: CommentsCompTypes) {
 
@@ -35,45 +35,47 @@ export default function Comments({ params }: CommentsCompTypes) {
 
     return (
         <>
-            <div 
-                id="Comments" 
-                className="relative bg-[#F8F8F8] z-0 w-full h-[calc(100%-273px)] border-t-2 overflow-auto"
+            <div
+                id="Comments"
+                className="relative  min-h-[500px] max-h-[500px]  sm:h-full sm:bg-[#F8F8F8] z-0 w-screen border-t-0 sm:border-t-2 overflow-auto"
             >
-   
-                <div className="pt-2"/>
+
+                <div className="pt-2" />
 
                 <ClientOnly>
                     {commentsByPost.length < 1 ? (
-                        <div className="text-center mt-6 text-xl text-gray-500">No comments...</div>
+                        <div className="text-center mt-6 text-xl text-white sm:text-gray-500">No comments...</div>
                     ) : (
                         <div>
                             {commentsByPost.map((comment, index) => (
                                 <SingleComment key={index} comment={comment} params={params} />
                             ))}
+
                         </div>
                     )}
                 </ClientOnly>
 
                 <div className="mb-28" />
-                
+
             </div>
 
-            <div 
-                id="CreateComment" 
-                className="absolute flex items-center justify-between bottom-0 bg-white h-[85px] lg:max-w-[550px] w-full py-5 px-8 border-t-2"
+            <div
+                id="CreateComment"
+                className="absolute flex items-center justify-between bottom-0 bg-[#212327] sm:bg-white h-[85px] lg:max-w-[550px] w-full py-5 px-8 sm:border-t-2"
             >
-                <div 
+                <div
                     className={`
                         bg-[#F1F1F2] flex items-center rounded-lg w-full lg:max-w-[420px]
-                        ${inputFocused ? 'border-2 border-gray-400' : 'border-2 border-[#F1F1F2]'}
+                        ${inputFocused ? 'sm:border-2 sm:border-gray-400' : 'sm:border-2 sm:border-[#F1F1F2]'}
                     `}
                 >
-                    <input 
+                    <input
                         onFocus={() => setInputFocused(true)}
                         onBlur={() => setInputFocused(false)}
                         onChange={e => setComment(e.target.value)}
                         value={comment || ''}
-                        className="bg-[#F1F1F2] text-[14px] focus:outline-none w-full lg:max-w-[420px] p-2 rounded-lg" 
+                        maxLength={30}
+                        className="bg-[#4a4c50] sm:bg-[#F1F1F2] text-white sm:text-black text-[14px] focus:outline-none w-full lg:max-w-[420px] p-2 rounded-lg"
                         type="text"
                         placeholder="Add comment..."
                     />
@@ -92,8 +94,8 @@ export default function Comments({ params }: CommentsCompTypes) {
                 ) : (
                     <BiLoaderCircle className="animate-spin" color="#E91E62" size="20" />
                 )}
-                
-            </div>
+
+            </div >
         </>
     )
 }

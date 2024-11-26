@@ -10,7 +10,7 @@ import { usePostStore } from "@/app/stores/post"
 import { PostPageTypes } from "@/app/types"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { AiOutlineClose } from "react-icons/ai"
 import { BiChevronDown, BiChevronUp } from "react-icons/bi"
 
@@ -19,7 +19,7 @@ export default function Post({ params }: PostPageTypes) {
     let { postById, postsByUser, setPostById, setPostsByUser } = usePostStore()
     let { setLikesByPost } = useLikeStore()
     let { setCommentsByPost } = useCommentStore()
-
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
     const router = useRouter()
 
     useEffect(() => {
@@ -27,7 +27,13 @@ export default function Post({ params }: PostPageTypes) {
         setCommentsByPost(params.postId)
         setLikesByPost(params.postId)
         setPostsByUser(params.userId)
+
     }, [])
+
+    useEffect(() => {
+        const index = postsByUser.findIndex((video) => video.id === params.postId);
+        setCurrentIndex(index)
+    }, [postsByUser])
 
     const loopThroughPostsUp = () => {
         postsByUser.forEach(post => {
@@ -62,14 +68,14 @@ export default function Post({ params }: PostPageTypes) {
                     <div className="absolute z-30 right-4 top-1/2 -translate-y-1/2 flex flex-col gap-4">
                         <button
                             onClick={() => loopThroughPostsUp()}
-                            className="flex items-center justify-center rounded-full bg-gray-700 p-1.5 hover:bg-gray-800"
+                            className={`${currentIndex > 0 ? 'opacity-100' : 'opacity-20 select-none cursor-not-allowed'} flex items-center justify-center rounded-full bg-gray-700 p-1.5 hover:bg-gray-800`}
                         >
                             <BiChevronUp size="30" color="#FFFFFF" />
                         </button>
 
                         <button
                             onClick={() => loopThroughPostsDown()}
-                            className="flex items-center justify-center rounded-full bg-gray-700 p-1.5 hover:bg-gray-800"
+                            className={`${currentIndex < postsByUser.length - 1 ? 'opacity-100' : 'opacity-20 select-none cursor-not-allowed'} flex items-center justify-center rounded-full bg-gray-700 p-1.5 hover:bg-gray-800`}
                         >
                             <BiChevronDown size="30" color="#FFFFFF" />
                         </button>
