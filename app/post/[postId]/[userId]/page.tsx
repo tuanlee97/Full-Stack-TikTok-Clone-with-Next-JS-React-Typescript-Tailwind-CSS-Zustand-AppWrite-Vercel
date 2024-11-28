@@ -18,6 +18,7 @@ export default function Post({ params }: PostPageTypes) {
 
     let { postById, postsByUser, setPostById, setPostsByUser } = usePostStore()
     let { setLikesByPost } = useLikeStore()
+
     let { setCommentsByPost } = useCommentStore()
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     const router = useRouter()

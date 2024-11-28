@@ -20,7 +20,7 @@ const config: Config = {
         'zoom-in': 'zoomIn 0.5s ease-in-out',
         'zoom-out': 'zoomOut 0.5s ease-in-out',
         'zoom-in-out': 'zoomInOut 1.5s ease-in-out infinite',
-        'slide-up': 'slideUp 0.5s ease-out',
+        'slide-up': 'slideUp 0.3s ease-out',
         'slide-down': 'slideDown 0.5s ease-out',
       },
       keyframes: {

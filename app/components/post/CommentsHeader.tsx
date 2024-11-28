@@ -33,9 +33,10 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
     const [userLiked, setUserLiked] = useState<boolean>(false)
 
     useEffect(() => {
+        console.log("CommentsHeader useEffect")
         setCommentsByPost(params?.postId)
         setLikesByPost(params?.postId)
-    }, [post])
+    }, [post.id])
     useEffect(() => { hasUserLikedPost() }, [likesByPost])
 
     const hasUserLikedPost = () => {

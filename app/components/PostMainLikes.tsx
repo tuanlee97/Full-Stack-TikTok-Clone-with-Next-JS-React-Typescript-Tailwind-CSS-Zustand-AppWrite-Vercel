@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { memo, useEffect, useRef, useState } from "react"
 import { AiFillHeart } from "react-icons/ai"
 import { BiLoaderCircle } from "react-icons/bi"
 import { FaCommentDots, FaShare } from "react-icons/fa"
@@ -7,22 +7,21 @@ import { useUser } from "../context/user"
 import useCreateBucketUrl from "../hooks/useCreateBucketUrl"
 import useCreateLike from "../hooks/useCreateLike"
 import useDeleteLike from "../hooks/useDeleteLike"
-import useGetCommentsByPostId from "../hooks/useGetCommentsByPostId"
+import useDeviceType from "../hooks/useDeviceType"
 import useGetLikesByPostId from "../hooks/useGetLikesByPostId"
 import useIsLiked from "../hooks/useIsLiked"
+import { useCommentStore } from "../stores/comment"
 import { useGeneralStore } from "../stores/general"
-import { Comment, Like, PostMainLikesCompTypes } from "../types"
+import { Like, PostMainLikesCompTypes } from "../types"
 import Modal from "./Modal"
 import ModalPost from "./post/ModalPost"
 import ShareModal from "./post/ShareModal"
 
 export interface PostAdditionalProps {
-    isDragging?: boolean; // Optional - Biến trạng thái kéo thả
-    currentTime?: number; // Thời gian hiện tại của video
     togglePlayPause?: () => void;
     onModalClose?: (currentTime: number) => void;
 }
-export default function PostMainLikes({ post, isDragging, currentTime, togglePlayPause, onModalClose }: PostMainLikesCompTypes & PostAdditionalProps) {
+const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCompTypes & PostAdditionalProps) => {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     let { setIsLoginOpen } = useGeneralStore();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -31,22 +30,26 @@ export default function PostMainLikes({ post, isDragging, currentTime, togglePla
     const contextUser = useUser()
     const [hasClickedLike, setHasClickedLike] = useState<boolean>(false)
     const [userLiked, setUserLiked] = useState<boolean>(false)
-    const [comments, setComments] = useState<Comment[]>([])
+    // const [comments, setComments] = useState<Comment[]>([])
+    let { commentsByPost } = useCommentStore();
     const [likes, setLikes] = useState<Like[]>([])
-
+    const deviceType = useDeviceType();
     useEffect(() => {
         getAllLikesByPost()
-        getAllCommentsByPost()
-    }, [post])
+        // getAllCommentsByPost()
+
+    }, [post.id])
 
     useEffect(() => { hasUserLikedPost() }, [likes, contextUser])
 
-    const getAllCommentsByPost = async () => {
-        let result = await useGetCommentsByPostId(post?.id)
-        setComments(result)
-    }
+    // const getAllCommentsByPost = async () => {
+
+    //     let result = await useGetCommentsByPostId(post?.id)
+    //     setComments(result)
+    // }
 
     const getAllLikesByPost = async () => {
+
         let result = await useGetLikesByPostId(post?.id)
         setLikes(result)
     }
@@ -96,13 +99,12 @@ export default function PostMainLikes({ post, isDragging, currentTime, togglePla
             })
         }
     }
-    // Đồng bộ currentTime từ video ngoài vào video trong modal khi mở modal
-    useEffect(() => {
-        if (isModalOpen && videoRef.current) {
-            videoRef.current.currentTime = currentTime || 0;  // Cập nhật thời gian hiện tại từ parent vào video trong modal
-        }
-    }, [isModalOpen, currentTime]);
-
+    // // Đồng bộ currentTime từ video ngoài vào video trong modal khi mở modal
+    // useEffect(() => {
+    //     if (isModalOpen && videoRef.current) {
+    //         videoRef.current.currentTime = 0;  // Cập nhật thời gian hiện tại từ parent vào video trong modal
+    //     }
+    // }, [isModalOpen]);
 
 
     const handlePlayPause = () => {
@@ -111,7 +113,8 @@ export default function PostMainLikes({ post, isDragging, currentTime, togglePla
     const openModal = (postProfileId: string, postId: string) => {
         setIsModalOpen(true);
         changeUrl(`/post/${postId}/${postProfileId}`);
-        handlePlayPause();
+        videoRef.current?.play();
+        if (deviceType !== 'mobile') handlePlayPause();
     };
     // Khi đóng modal, gửi currentTime từ video trong modal về parent
     const closeModal = () => {
@@ -120,7 +123,8 @@ export default function PostMainLikes({ post, isDragging, currentTime, togglePla
         if (videoRef.current && onModalClose) {
             onModalClose(videoRef.current.currentTime); // Gửi currentTime từ video trong modal về parent
         }
-        handlePlayPause();
+        videoRef.current?.pause();
+        if (deviceType !== 'mobile') handlePlayPause();
     };
     const changeUrl = (url: string) => {
         window.history.replaceState({}, '', url);
@@ -135,9 +139,10 @@ export default function PostMainLikes({ post, isDragging, currentTime, togglePla
 
     const postUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/post/${post?.id}/${post?.profile?.user_id}`;
     const postText = "Check out this amazing video!";
+
     return (
         <>
-            <div id={`PostMainLikes-${post?.id}`} className={`${isDragging ? 'opacity-50' : 'opacity-100'} relative right-[60px] bottom-28 sm:right-0 sm:mr-[75px]`}>
+            <div id={`PostMainLikes-${post?.id}`} className={`opacity-100 relative right-[60px] bottom-28 sm:right-0 sm:mr-[75px]`}>
                 <div className="absolute bottom-0 pl-2">
                     <button className="cursor-pointer pb-4" onClick={() => router.push(`/profile/${post?.profile?.user_id}`)}>
                         <img className="rounded-full max-h-[60px]" width="60" src={useCreateBucketUrl(post?.profile?.image)} />
@@ -170,7 +175,7 @@ export default function PostMainLikes({ post, isDragging, currentTime, togglePla
                         <div className="rounded-full bg-gray-200 p-2 cursor-pointer">
                             <FaCommentDots size="25" />
                         </div>
-                        <span className="text-xs text-white sm:text-gray-800 font-semibold">{comments?.length}</span>
+                        <span className="text-xs text-white sm:text-gray-800 font-semibold">{commentsByPost?.length}</span>
                     </button>
                     <Modal isOpen={isModalOpen} onClose={closeModal}>
                         <ModalPost post={post} closeModal={closeModal} videoRef={videoRef} />
@@ -192,3 +197,4 @@ export default function PostMainLikes({ post, isDragging, currentTime, togglePla
         </>
     )
 }
+export default memo(PostMainLikes);

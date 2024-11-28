@@ -8,6 +8,8 @@ export interface UserContextTypes {
 export interface VideoContextType {
     currentIndex: number;
     setCurrentIndex: (index: number) => void;
+    isMuted: boolean;
+    setIsMuted: (isMuted: boolean) => void;
 }
 export interface ShareModalProps {
     isOpen: boolean;
@@ -136,8 +138,7 @@ export interface PostMainCompTypes {
 }
 
 export interface PostMainLikesCompTypes {
-    post: PostWithProfile,
-    isDragging: boolean,
+    post: PostWithProfile
 }
 
 export interface TextInputCompTypes {

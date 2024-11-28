@@ -12,7 +12,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
 
     return (
         <div
-            className={`animate-slide-up sm:animate-none modal fixed sm:max-h-full left-0 bottom-0 sm:inset-0  w-screen bg-transparent flex justify-center items-center z-50`}
+            className={`animate-slide-up sm:animate-none modal fixed sm:max-h-full left-0 bottom-0 sm:inset-0  w-screen bg-transparent flex justify-center items-center z-40`}
             onClick={onClose}
         >
             <div

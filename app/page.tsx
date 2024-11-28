@@ -8,13 +8,16 @@ import { VideoContext } from "./context/video"
 import MainLayout from "./layouts/MainLayout"
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [isMuted, setIsMuted] = useState<boolean>(true);
   let { allPosts, setAllPosts } = usePostStore();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const videoContainerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setAllPosts()
     setIsLoading(false)
   }, [])
+
   // Hàm cuộn đến video hiện tại
   const scrollToCurrentVideo = () => {
     if (videoContainerRef.current) {
@@ -27,9 +30,11 @@ export default function Home() {
       }
     }
   };
+
   useEffect(() => {
     scrollToCurrentVideo();
   }, [currentIndex]);
+
   if (isLoading) return <div className="bg-black sm:bg-white sm:dark:bg-black flex justify-center items-center h-[calc(100dvh)] ">
     <svg className="animate-zoom-in-out py-2" width={287} height={153} viewBox="0 0 187 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g clipPath="url(#clip0_654_4130)">
@@ -57,7 +62,7 @@ export default function Home() {
         <div className="sm:mt-[80px] w-full sm:max-w-[calc(100vw-80px)] lg:max-w-[calc(100vw-250px)]  ml-auto sm:px-12 ">
           <ClientOnly>
             <div ref={videoContainerRef} className="w-full mx-auto scroll-container h-[calc(100dvh-60px)] sm:h-[calc(100dvh-80px)] overflow-y-scroll scroll-snap-y scrollbar-w-0">
-              <VideoContext.Provider value={{ currentIndex, setCurrentIndex }}>
+              <VideoContext.Provider value={{ currentIndex, setCurrentIndex, isMuted, setIsMuted }}>
                 {allPosts.map((post) => (
                   <PostMain key={post.id} post={post} />
                 ))}

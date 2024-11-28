@@ -12,6 +12,7 @@ import { BsTrash3 } from "react-icons/bs"
 export default function SingleComment({ comment, params }: SingleCommentCompTypes) {
 
     const contextUser = useUser()
+
     let { setCommentsByPost } = useCommentStore()
     const [isDeleting, setIsDeleting] = useState(false)
 

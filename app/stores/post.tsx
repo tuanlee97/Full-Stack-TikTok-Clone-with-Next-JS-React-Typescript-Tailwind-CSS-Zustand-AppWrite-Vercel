@@ -23,6 +23,7 @@ export const usePostStore = create<PostStore>()(
                 postById: null,
 
                 setAllPosts: async () => {
+                    console.log("setAllPosts")
                     const result = await useGetAllPosts()
                     set({ allPosts: result });
                 },

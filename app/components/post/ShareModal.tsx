@@ -46,7 +46,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, closeModal, postUrl, po
 
     return (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white rounded-lg py-5 px px-6 w-[300px] sm:w-[500px]">
+            <div className="bg-white rounded-lg py-5 px-6 mx-2 w-full sm:w-[500px]">
                 <div className="flex justify-between items-center">
                     <h2 className="text-lg font-semibold">Share This Post</h2>
                     <button onClick={closeModal} className="text-gray-500 hover:text-black">
@@ -55,7 +55,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, closeModal, postUrl, po
                 </div>
 
                 <div className="mt-4">
-                    <div className="grid grid-cols-4 gap-4">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
                         <button
                             onClick={() => handleShare('facebook')}
                             className="flex flex-col items-center justify-center rounded-full text-sm font-semibold gap-1"
