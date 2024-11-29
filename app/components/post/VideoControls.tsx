@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { FiVolume2, FiVolumeX } from 'react-icons/fi';
 import { ImMusic } from 'react-icons/im';
 
-const VideoControls = ({ post, isPaused }: PostMainCompTypes & { isPaused: boolean }) => {
+const VideoControls = ({ post, isPaused, modalCurrentTime }: PostMainCompTypes & { isPaused: boolean, modalCurrentTime: number }) => {
     const [volume, setVolume] = useState(1);
     const [currentTime, setCurrentTime] = useState(0);
     const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -94,6 +94,17 @@ const VideoControls = ({ post, isPaused }: PostMainCompTypes & { isPaused: boole
     const toggleMute = useCallback(() => {
         setIsMuted(!isMuted);
     }, [isMuted]);
+
+    useEffect(() => {
+        if (videoRef.current)
+            setIsMuted(videoRef.current?.muted);
+
+    }, [videoRef.current?.muted]);
+    useEffect(() => {
+        if (videoRef.current)
+            videoRef.current.currentTime = modalCurrentTime;
+    }, [modalCurrentTime]);
+
     const handleClickDuration = useCallback((e: React.MouseEvent) => {
         const progressBar = e.currentTarget as HTMLElement;
         const clickedPosition = (e.clientX - progressBar.getBoundingClientRect().left) / progressBar.offsetWidth;

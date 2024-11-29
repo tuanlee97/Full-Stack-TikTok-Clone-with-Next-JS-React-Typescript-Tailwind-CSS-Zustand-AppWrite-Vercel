@@ -22,7 +22,7 @@ export default function PostMain({ post }: PostMainCompTypes) {
                 <div className="sm:pl-3 w-full sm:px-4">
                     <div className="sm:mt-2.5 flex justify-center h-full sm:h-[calc(100%-40px)]">
                         <div className="relative w-max flex items-center bg-black sm:rounded-xl cursor-pointer">
-                            <VideoControls isPaused={isPaused} post={post} />
+                            <VideoControls modalCurrentTime={currentTime} isPaused={isPaused} post={post} />
                         </div>
                         <PostMainLikes
                             togglePlayPause={togglePlayPause}

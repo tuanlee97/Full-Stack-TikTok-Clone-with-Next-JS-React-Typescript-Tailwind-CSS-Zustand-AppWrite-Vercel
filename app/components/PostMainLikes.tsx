@@ -30,23 +30,17 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
     const contextUser = useUser()
     const [hasClickedLike, setHasClickedLike] = useState<boolean>(false)
     const [userLiked, setUserLiked] = useState<boolean>(false)
-    // const [comments, setComments] = useState<Comment[]>([])
+
     let { commentsByPost } = useCommentStore();
     const [likes, setLikes] = useState<Like[]>([])
     const deviceType = useDeviceType();
     useEffect(() => {
         getAllLikesByPost()
-        // getAllCommentsByPost()
-
     }, [post.id])
 
     useEffect(() => { hasUserLikedPost() }, [likes, contextUser])
 
-    // const getAllCommentsByPost = async () => {
 
-    //     let result = await useGetCommentsByPostId(post?.id)
-    //     setComments(result)
-    // }
 
     const getAllLikesByPost = async () => {
 
@@ -99,12 +93,6 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
             })
         }
     }
-    // // Đồng bộ currentTime từ video ngoài vào video trong modal khi mở modal
-    // useEffect(() => {
-    //     if (isModalOpen && videoRef.current) {
-    //         videoRef.current.currentTime = 0;  // Cập nhật thời gian hiện tại từ parent vào video trong modal
-    //     }
-    // }, [isModalOpen]);
 
 
     const handlePlayPause = () => {
@@ -121,7 +109,7 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
         setIsModalOpen(false);
         changeUrl(window.history.state?.url || '/');
         if (videoRef.current && onModalClose) {
-            onModalClose(videoRef.current.currentTime); // Gửi currentTime từ video trong modal về parent
+            onModalClose(videoRef.current.currentTime);
         }
         videoRef.current?.pause();
         if (deviceType !== 'mobile') handlePlayPause();
@@ -154,7 +142,7 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
                             className="rounded-full bg-gray-200 p-2 cursor-pointer"
                         >
                             {!hasClickedLike ? (
-                                <AiFillHeart color={likes?.length > 0 && userLiked ? '#ff2626' : ''} size="25" />
+                                <AiFillHeart color={likes?.length > 0 && userLiked ? '#ff2626' : '#000'} size="25" />
                             ) : (
                                 <BiLoaderCircle className="animate-spin" size="25" />
                             )}
@@ -173,7 +161,7 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
                         className="pb-4 text-center"
                     >
                         <div className="rounded-full bg-gray-200 p-2 cursor-pointer">
-                            <FaCommentDots size="25" />
+                            <FaCommentDots color="#000" size="25" />
                         </div>
                         <span className="text-xs text-white sm:text-gray-800 font-semibold">{commentsByPost?.length}</span>
                     </button>
@@ -182,7 +170,7 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
                     </Modal>
                     <button className="text-center" onClick={() => openModalShare(post?.profile?.user_id, post?.id)}>
                         <div className="rounded-full bg-gray-200 p-2 cursor-pointer">
-                            <FaShare size="25" />
+                            <FaShare color="#000" size="25" />
                         </div>
                         <span className="text-xs text-white sm:text-gray-800 font-semibold">55</span>
                     </button>
