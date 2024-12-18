@@ -1,6 +1,6 @@
 import { useUser } from "@/app/context/user"
-import useCreateBucketUrl from "@/app/hooks/useCreateBucketUrl"
 import useDeleteComment from "@/app/hooks/useDeleteComment"
+import useUploadsUrl from "@/app/hooks/useUploadsUrl"
 import { useCommentStore } from "@/app/stores/comment"
 import { SingleCommentCompTypes } from "@/app/types"
 import moment from "moment"
@@ -38,7 +38,7 @@ export default function SingleComment({ comment, params }: SingleCommentCompType
                         <img
                             className="absolute top-0 rounded-full lg:mx-0 mx-auto"
                             width="40"
-                            src={useCreateBucketUrl(comment.profile.image)}
+                            src={useUploadsUrl(comment.profile.image)}
                         />
                     </Link>
                     <div className="ml-14 pt-0.5 w-full">

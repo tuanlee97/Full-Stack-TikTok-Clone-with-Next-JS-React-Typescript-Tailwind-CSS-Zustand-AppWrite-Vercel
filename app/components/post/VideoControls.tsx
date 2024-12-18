@@ -1,6 +1,6 @@
 import { useVideoContext } from '@/app/context/video';
-import useCreateBucketUrl from '@/app/hooks/useCreateBucketUrl';
 import useDeviceType from '@/app/hooks/useDeviceType';
+import useUploadsUrl from '@/app/hooks/useUploadsUrl';
 import { PostMainCompTypes } from '@/app/types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FiVolume2, FiVolumeX } from 'react-icons/fi';
@@ -163,7 +163,7 @@ const VideoControls = ({ post, isPaused, modalCurrentTime }: PostMainCompTypes &
                 playsInline
                 preload="auto"
                 className="sm:rounded-xl object-cover mx-auto h-full"
-                src={useCreateBucketUrl(post?.video_url)}
+                src={useUploadsUrl(post?.video_url)}
                 onTimeUpdate={handleTimeUpdate}
             />
 

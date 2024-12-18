@@ -1,6 +1,6 @@
-import ClientOnly from "@/app/components/ClientOnly"
 import { useUser } from "@/app/context/user"
 
+import ClientOnly from "@/app/components/ClientOnly"
 import { useGeneralStore } from "@/app/stores/general"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -28,7 +28,6 @@ export default function SideNavMain({ deviceType }: { deviceType: string }) {
         if (type == 'inbox') return router.push(`/inbox/${contextUser?.user?.id}`)
     }
 
-
     return (
         <>
             {deviceType !== 'mobile' ? (
@@ -52,7 +51,7 @@ export default function SideNavMain({ deviceType }: { deviceType: string }) {
                         <div className="lg:hidden block pt-3" />
                         <ClientOnly>
                             <div className="cursor-pointer">
-                                {randomUsers?.map((user, index) => (
+                                {randomUsers?.filter(user => user.id + "" !== contextUser?.user?.id).map((user, index) => (
                                     <MenuItemFollow key={index} user={user} />
                                 ))}
                             </div>
@@ -68,7 +67,7 @@ export default function SideNavMain({ deviceType }: { deviceType: string }) {
                                 <div className="lg:hidden block pt-3" />
                                 <ClientOnly>
                                     <div className="cursor-pointer">
-                                        {randomUsers?.map((user, index) => (
+                                        {randomUsers?.filter(user => user.id + "" !== contextUser?.user?.id).map((user, index) => (
                                             <MenuItemFollow key={index} user={user} />
                                         ))}
                                     </div>

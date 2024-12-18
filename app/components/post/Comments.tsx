@@ -43,9 +43,17 @@ const Comments = ({ params }: CommentsCompTypes) => {
 
             // Reset lại input
             setComment('');
-        } catch (error) {
-            console.log(error);
-            alert(error);
+        } catch (error: any) {
+
+            if (error.response && error.response.status === 401) {
+                console.error('Unauthorized access, logging out...');
+                // Handle 401 Unauthorized error
+                contextUser?.logout();  // Assuming logout method exists in the context
+            } else {
+                // Handle other errors
+                console.error('Error:', error.message);
+            }
+
         } finally {
             setIsUploading(false);
         }

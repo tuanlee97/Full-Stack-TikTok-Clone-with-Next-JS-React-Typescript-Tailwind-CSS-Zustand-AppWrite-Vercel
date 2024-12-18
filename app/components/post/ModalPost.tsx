@@ -1,6 +1,6 @@
 import { useVideoContext } from "@/app/context/video";
-import useCreateBucketUrl from "@/app/hooks/useCreateBucketUrl";
 import useDeviceType from "@/app/hooks/useDeviceType";
+import useUploadsUrl from "@/app/hooks/useUploadsUrl";
 import { usePostStore } from "@/app/stores/post";
 import { PostMainCompTypes, PostWithProfile } from "@/app/types";
 import { useRouter } from "next/navigation";
@@ -97,7 +97,7 @@ const ModalPost: React.FC<PostMainCompTypes & ActionProps> = ({ post, closeModal
                                         playsInline
                                         loop
                                         className="h-screen mx-auto"
-                                        src={useCreateBucketUrl(currentVideo.video_url)}
+                                        src={useUploadsUrl(currentVideo.video_url)}
                                     />
                                 )}
 

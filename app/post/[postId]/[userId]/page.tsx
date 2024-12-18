@@ -3,7 +3,7 @@
 import ClientOnly from "@/app/components/ClientOnly"
 import Comments from "@/app/components/post/Comments"
 import CommentsHeader from "@/app/components/post/CommentsHeader"
-import useCreateBucketUrl from "@/app/hooks/useCreateBucketUrl"
+import useUploadsUrl from "@/app/hooks/useUploadsUrl"
 import { useCommentStore } from "@/app/stores/comment"
 import { useLikeStore } from "@/app/stores/like"
 import { usePostStore } from "@/app/stores/post"
@@ -92,7 +92,7 @@ export default function Post({ params }: PostPageTypes) {
                         {postById?.video_url ? (
                             <video
                                 className="fixed object-cover w-full my-auto z-[0] h-screen"
-                                src={useCreateBucketUrl(postById?.video_url)}
+                                src={useUploadsUrl(postById?.video_url)}
                             />
                         ) : null}
 
@@ -104,7 +104,7 @@ export default function Post({ params }: PostPageTypes) {
                                     loop
                                     muted
                                     className="h-screen mx-auto"
-                                    src={useCreateBucketUrl(postById.video_url)}
+                                    src={useUploadsUrl(postById.video_url)}
                                 />
                             ) : null}
                         </div>

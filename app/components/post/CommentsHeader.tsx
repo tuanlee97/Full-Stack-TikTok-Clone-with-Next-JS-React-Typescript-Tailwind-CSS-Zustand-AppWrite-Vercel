@@ -1,11 +1,11 @@
 "use client"
 
 import { useUser } from "@/app/context/user"
-import useCreateBucketUrl from "@/app/hooks/useCreateBucketUrl"
 import useCreateLike from "@/app/hooks/useCreateLike"
 import useDeleteLike from "@/app/hooks/useDeleteLike"
 import useDeletePostById from "@/app/hooks/useDeletePostById"
 import useIsLiked from "@/app/hooks/useIsLiked"
+import useUploadsUrl from "@/app/hooks/useUploadsUrl"
 import { useCommentStore } from "@/app/stores/comment"
 import { useGeneralStore } from "@/app/stores/general"
 import { useLikeStore } from "@/app/stores/like"
@@ -33,7 +33,6 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
     const [userLiked, setUserLiked] = useState<boolean>(false)
 
     useEffect(() => {
-        console.log("CommentsHeader useEffect")
         setCommentsByPost(params?.postId)
         setLikesByPost(params?.postId)
     }, [post.id])
@@ -51,7 +50,20 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
     const like = async () => {
         try {
             setHasClickedLike(true)
-            await useCreateLike(contextUser?.user?.id || '', params.postId)
+            try {
+                await useCreateLike(params.postId)
+            }
+            catch (error: any) {
+                if (error.response && error.response.status === 401) {
+                    console.error('Unauthorized access, logging out...');
+                    // Handle 401 Unauthorized error
+                    contextUser?.logout();  // Assuming logout method exists in the context
+                } else {
+                    // Handle other errors
+                    alert(error);
+                    console.error('Error:', error.message);
+                }
+            }
             setLikesByPost(params.postId)
             setHasClickedLike(false)
         } catch (error) {
@@ -64,7 +76,20 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
     const unlike = async (id: string) => {
         try {
             setHasClickedLike(true)
-            await useDeleteLike(id)
+            try {
+                await useDeleteLike(id)
+            }
+            catch (error: any) {
+                if (error.response && error.response.status === 401) {
+                    console.error('Unauthorized access, logging out...');
+                    // Handle 401 Unauthorized error
+                    contextUser?.logout();  // Assuming logout method exists in the context
+                } else {
+                    // Handle other errors
+                    alert(error);
+                    console.error('Error:', error.message);
+                }
+            }
             setLikesByPost(params.postId)
             setHasClickedLike(false)
         } catch (error) {
@@ -75,7 +100,7 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
     }
 
     const likeOrUnlike = () => {
-        if (!contextUser?.user) return setIsLoginOpen(true)
+        if (!contextUser?.user?.id) return setIsLoginOpen(true)
 
         let res = useIsLiked(contextUser.user.id, params.postId, likesByPost)
         if (!res) {
@@ -83,7 +108,7 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
         } else {
             likesByPost.forEach(like => {
                 if (contextUser?.user?.id && contextUser.user.id == like.user_id && like.post_id == params.postId) {
-                    unlike(like.id)
+                    unlike(like.post_id)
                 }
             })
         }
@@ -99,10 +124,16 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
             await useDeletePostById(params?.postId, post?.video_url)
             router.push(`/profile/${params.userId}`)
             setIsDeleteing(false)
-        } catch (error) {
-            console.log(error)
-            setIsDeleteing(false)
-            alert(error)
+        } catch (error: any) {
+            if (error.response && error.response.status === 401) {
+                console.error('Unauthorized access, logging out...');
+                // Handle 401 Unauthorized error
+                contextUser?.logout();  // Assuming logout method exists in the context
+            } else {
+                console.log(error)
+                setIsDeleteing(false)
+                alert(error)
+            }
         }
     }
     return (
@@ -110,11 +141,7 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
             <div className="flex items-center justify-between px-8">
                 <div className="flex items-center">
                     <Link href={`/profile/${post?.user_id}`}>
-                        {post?.profile.image ? (
-                            <img className="rounded-full lg:mx-0 mx-auto" width="40" src={useCreateBucketUrl(post?.profile.image)} />
-                        ) : (
-                            <div className="w-[40px] h-[40px] bg-gray-200 rounded-full"></div>
-                        )}
+                        <img className="rounded-full lg:mx-0 mx-auto" width="40" src={useUploadsUrl(post.profile.image)} />
                     </Link>
                     <div className="ml-3 pt-0.5">
 

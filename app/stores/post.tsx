@@ -7,6 +7,7 @@ import { Post, PostWithProfile } from '../types';
 
 interface PostStore {
     allPosts: PostWithProfile[];
+    total: number,
     postsByUser: Post[];
     postById: PostWithProfile | null;
     setAllPosts: () => void;
@@ -21,11 +22,14 @@ export const usePostStore = create<PostStore>()(
                 allPosts: [],
                 postsByUser: [],
                 postById: null,
-
+                total: 0,
                 setAllPosts: async () => {
-                    console.log("setAllPosts")
                     const result = await useGetAllPosts()
-                    set({ allPosts: result });
+                    set({
+                        allPosts: result.videos,
+                        total: result.total
+                    });
+
                 },
                 setPostsByUser: async (userId: string) => {
                     console.log(userId)

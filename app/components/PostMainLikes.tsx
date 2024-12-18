@@ -4,12 +4,12 @@ import { AiFillHeart } from "react-icons/ai"
 import { BiLoaderCircle } from "react-icons/bi"
 import { FaCommentDots, FaShare } from "react-icons/fa"
 import { useUser } from "../context/user"
-import useCreateBucketUrl from "../hooks/useCreateBucketUrl"
 import useCreateLike from "../hooks/useCreateLike"
 import useDeleteLike from "../hooks/useDeleteLike"
 import useDeviceType from "../hooks/useDeviceType"
 import useGetLikesByPostId from "../hooks/useGetLikesByPostId"
 import useIsLiked from "../hooks/useIsLiked"
+import useUploadsUrl from "../hooks/useUploadsUrl"
 import { useCommentStore } from "../stores/comment"
 import { useGeneralStore } from "../stores/general"
 import { Like, PostMainLikesCompTypes } from "../types"
@@ -31,12 +31,13 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
     const [hasClickedLike, setHasClickedLike] = useState<boolean>(false)
     const [userLiked, setUserLiked] = useState<boolean>(false)
 
-    let { commentsByPost } = useCommentStore();
+    let { commentsByPost, setCommentsByPost } = useCommentStore();
     const [likes, setLikes] = useState<Like[]>([])
     const deviceType = useDeviceType();
     useEffect(() => {
         getAllLikesByPost()
-    }, [post.id])
+        setCommentsByPost(post.id);
+    }, [post.id, isModalOpen])
 
     useEffect(() => { hasUserLikedPost() }, [likes, contextUser])
 
@@ -61,7 +62,21 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
 
     const like = async () => {
         setHasClickedLike(true)
-        await useCreateLike(contextUser?.user?.id || '', post?.id)
+
+        try {
+            await useCreateLike(post?.id)
+        } catch (error: any) {
+            if (error.response && error.response.status === 401) {
+                console.error('Unauthorized access, logging out...');
+                // Handle 401 Unauthorized error
+                contextUser?.logout();  // Assuming logout method exists in the context
+            } else {
+                // Handle other errors
+                alert(error);
+                console.error('Error:', error.message);
+            }
+        }
+
         await getAllLikesByPost()
         hasUserLikedPost()
         setHasClickedLike(false)
@@ -69,7 +84,20 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
 
     const unlike = async (id: string) => {
         setHasClickedLike(true)
-        await useDeleteLike(id)
+        try {
+            await useDeleteLike(id)
+        }
+        catch (error: any) {
+            if (error.response && error.response.status === 401) {
+                console.error('Unauthorized access, logging out...');
+                // Handle 401 Unauthorized error
+                contextUser?.logout();  // Assuming logout method exists in the context
+            } else {
+                // Handle other errors
+                alert(error);
+                console.error('Error:', error.message);
+            }
+        }
         await getAllLikesByPost()
         hasUserLikedPost()
         setHasClickedLike(false)
@@ -88,7 +116,7 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
         } else {
             likes.forEach((like: Like) => {
                 if (contextUser?.user?.id == like?.user_id && like?.post_id == post?.id) {
-                    unlike(like?.id)
+                    unlike(like?.post_id)
                 }
             })
         }
@@ -133,7 +161,7 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
             <div id={`PostMainLikes-${post?.id}`} className={`opacity-100 relative right-[60px] bottom-28 sm:right-0 sm:mr-[75px]`}>
                 <div className="absolute bottom-0 pl-2">
                     <button className="cursor-pointer pb-4" onClick={() => router.push(`/profile/${post?.profile?.user_id}`)}>
-                        <img className="rounded-full max-h-[60px]" width="60" src={useCreateBucketUrl(post?.profile?.image)} />
+                        <img className="rounded-full max-h-[60px]" width="60" src={post?.profile?.image ? useUploadsUrl(post?.profile?.image) : `/images/placeholder-user.jpg`} />
                     </button>
                     <div className="pb-4 text-center">
                         <button
@@ -172,7 +200,7 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
                         <div className="rounded-full bg-gray-200 p-2 cursor-pointer">
                             <FaShare color="#000" size="25" />
                         </div>
-                        <span className="text-xs text-white sm:text-gray-800 font-semibold">55</span>
+                        {/* <span className="text-xs text-white sm:text-gray-800 font-semibold">55</span> */}
                     </button>
                     <ShareModal
                         isOpen={isModalShareOpen}

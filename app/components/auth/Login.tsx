@@ -1,9 +1,9 @@
-import TextInput from "../TextInput";
-import { useState } from "react";
-import { ShowErrorObject } from "@/app/types";
 import { useUser } from "@/app/context/user";
 import { useGeneralStore } from "@/app/stores/general";
+import { ShowErrorObject } from "@/app/types";
+import { useState } from "react";
 import { BiLoaderCircle } from "react-icons/bi";
+import TextInput from "../TextInput";
 
 export default function Login() {
     let { setIsLoginOpen } = useGeneralStore();
@@ -11,8 +11,8 @@ export default function Login() {
     const contextUser = useUser()
 
     const [loading, setLoading] = useState<boolean>(false);
-    const [email, setEmail] = useState<string | ''>('');
-    const [password, setPassword] = useState<string | ''>('');
+    const [email, setEmail] = useState<string | ''>('user04@chatnail.com');
+    const [password, setPassword] = useState<string | ''>('admin@123');
     const [error, setError] = useState<ShowErrorObject | null>(null)
 
     const showError = (type: string) => {
@@ -27,10 +27,10 @@ export default function Login() {
         let isError = false
 
         if (!email) {
-            setError({ type: 'email', message: 'An Email is required'})
+            setError({ type: 'email', message: 'An Email is required' })
             isError = true
         } else if (!password) {
-            setError({ type: 'password', message: 'A Password is required'})
+            setError({ type: 'password', message: 'A Password is required' })
             isError = true
         }
         return isError
@@ -59,7 +59,7 @@ export default function Login() {
                 <h1 className="text-center text-[28px] mb-4 font-bold">Log in</h1>
 
                 <div className="px-6 pb-2">
-                    <TextInput 
+                    <TextInput
                         string={email}
                         placeholder="Email address"
                         onUpdate={setEmail}
@@ -69,7 +69,7 @@ export default function Login() {
                 </div>
 
                 <div className="px-6 pb-2">
-                    <TextInput 
+                    <TextInput
                         string={password}
                         placeholder="Password"
                         onUpdate={setPassword}
@@ -79,9 +79,9 @@ export default function Login() {
                 </div>
 
                 <div className="px-6 pb-2 mt-6">
-                    <button 
+                    <button
                         disabled={loading}
-                        onClick={() => login()} 
+                        onClick={() => login()}
                         className={`
                             flex items-center justify-center w-full text-[17px] font-semibold text-white py-3 rounded-sm
                             ${(!email || !password) ? 'bg-gray-200' : 'bg-[#F02C56]'}

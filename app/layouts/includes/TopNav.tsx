@@ -1,6 +1,7 @@
 import { useUser } from "@/app/context/user";
 import useCreateBucketUrl from "@/app/hooks/useCreateBucketUrl";
 import useSearchProfilesByName from "@/app/hooks/useSearchProfilesByName";
+import useUploadsUrl from "@/app/hooks/useUploadsUrl";
 import { useGeneralStore } from "@/app/stores/general";
 import { RandomUsers } from "@/app/types";
 import { debounce } from "debounce";
@@ -130,7 +131,7 @@ export default function TopNav() {
                                         onClick={() => setShowMenu(showMenu = !showMenu)}
                                         className="mt-1 border border-gray-200 rounded-full"
                                     >
-                                        <img className="rounded-full w-[35px] h-[35px]" src={useCreateBucketUrl(userContext?.user?.image || '')} />
+                                        <img className="rounded-full w-[35px] h-[35px]" src={useUploadsUrl(userContext?.user?.image)} />
                                     </button>
 
                                     {showMenu ? (

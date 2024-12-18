@@ -4,7 +4,7 @@ import BottomMenu from "@/app/components/BottomMenu"
 import ClientOnly from "@/app/components/ClientOnly"
 import PostUser from "@/app/components/profile/PostUser"
 import { useUser } from "@/app/context/user"
-import useCreateBucketUrl from "@/app/hooks/useCreateBucketUrl"
+import useUploadsUrl from "@/app/hooks/useUploadsUrl"
 import MainLayout from "@/app/layouts/MainLayout"
 import { useGeneralStore } from "@/app/stores/general"
 import { usePostStore } from "@/app/stores/post"
@@ -44,7 +44,7 @@ export default function Profile({ params }: ProfilePageTypes) {
                                 )}
 
                                 {currentProfile ? (
-                                    <img className="w-[100px] sm:w-[120px] sm:min-w-[120px] rounded-full" src={useCreateBucketUrl(currentProfile?.image)} />
+                                    <img className="w-[100px] sm:w-[120px] sm:min-w-[120px] rounded-full" src={useUploadsUrl(currentProfile?.image)} />
                                 ) : (
                                     <div className="min-w-[150px] h-[120px] bg-gray-200 rounded-full" />
                                 )}
