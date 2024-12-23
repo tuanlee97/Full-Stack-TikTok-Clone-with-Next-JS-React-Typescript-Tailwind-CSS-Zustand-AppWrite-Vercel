@@ -9,7 +9,6 @@ export default function PostMain({ post }: PostMainCompTypes) {
     const [currentTime, setCurrentTime] = useState(0); // Thời gian hiện tại của video
 
     const handleModalClose = (modalCurrentTime: number) => {
-        console.log("handleModalClose")
         setCurrentTime(modalCurrentTime); // Cập nhật lại currentTime từ modal về cha
 
     };

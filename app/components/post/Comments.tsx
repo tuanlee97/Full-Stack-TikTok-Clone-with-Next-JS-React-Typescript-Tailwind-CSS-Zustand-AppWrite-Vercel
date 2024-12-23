@@ -63,13 +63,13 @@ const Comments = ({ params }: CommentsCompTypes) => {
         <>
             <div
                 id="Comments"
-                className="relative min-h-[500px] max-h-[500px] sm:h-full sm:bg-[#F8F8F8] z-0 w-screen border-t-0 sm:border-t-2 overflow-auto"
+                className="relative min-h-[500px] max-h-[500px] sm:h-full sm:bg-[#F8F8F8] z-0 w-screen sm:w-auto border-t-0 sm:border-t-2 overflow-auto"
             >
                 <div className="pt-2" />
 
                 <ClientOnly>
                     {/* Hiển thị loading */}
-                    {loading && commentsByPost.length === 0 ? (
+                    {loading && commentsByPost[params.postId]?.length === 0 ? (
                         <div className="flex flex-col items-center text-center mt-6 text-sm text-white sm:text-gray-500">
                             <BiLoaderCircle className="animate-spin" color="#E91E62" size="30" />
                             Loading comments...
@@ -79,7 +79,7 @@ const Comments = ({ params }: CommentsCompTypes) => {
                         <div className="text-center mt-6 text-sm text-red-600">
                             {error}
                         </div>
-                    ) : commentsByPost.length < 1 ? (
+                    ) : commentsByPost[params.postId]?.length < 1 ? (
                         // Nếu không có bình luận nào
                         <div className="text-center mt-6 text-sm text-white sm:text-gray-500">
                             No comments...
@@ -87,7 +87,7 @@ const Comments = ({ params }: CommentsCompTypes) => {
                     ) : (
                         // Hiển thị bình luận nếu có
                         <div>
-                            {commentsByPost.map((comment, index) => (
+                            {commentsByPost[params.postId]?.map((comment, index) => (
                                 <SingleComment key={index} comment={comment} params={params} />
                             ))}
                         </div>

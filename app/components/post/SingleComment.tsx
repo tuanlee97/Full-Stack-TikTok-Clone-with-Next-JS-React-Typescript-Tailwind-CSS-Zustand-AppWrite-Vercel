@@ -25,9 +25,16 @@ export default function SingleComment({ comment, params }: SingleCommentCompType
             await useDeleteComment(comment?.id)
             setCommentsByPost(params?.postId)
             setIsDeleting(false)
-        } catch (error) {
-            console.log(error)
-            alert(error)
+        } catch (error: any) {
+            if (error.response && error.response.status === 401) {
+                console.error('Unauthorized access, logging out...');
+                // Handle 401 Unauthorized error
+                contextUser?.logout();  // Assuming logout method exists in the context
+            } else {
+                // Handle other errors
+                console.log(error)
+                alert(error)
+            }
         }
     }
     return (

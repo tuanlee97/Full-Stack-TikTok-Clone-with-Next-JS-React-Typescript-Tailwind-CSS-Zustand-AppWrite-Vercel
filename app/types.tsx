@@ -30,6 +30,8 @@ export interface Profile {
     name: string;
     image: string;
     bio: string;
+    followersCount: number;
+    followingCount: number;
 }
 
 export interface RandomUsers {

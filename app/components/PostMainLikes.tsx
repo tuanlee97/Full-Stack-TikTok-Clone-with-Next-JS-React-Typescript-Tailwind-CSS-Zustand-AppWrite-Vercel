@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation"
-import { memo, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { AiFillHeart } from "react-icons/ai"
 import { BiLoaderCircle } from "react-icons/bi"
 import { FaCommentDots, FaShare } from "react-icons/fa"
@@ -40,8 +40,6 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
     }, [post.id, isModalOpen])
 
     useEffect(() => { hasUserLikedPost() }, [likes, contextUser])
-
-
 
     const getAllLikesByPost = async () => {
 
@@ -191,7 +189,7 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
                         <div className="rounded-full bg-gray-200 p-2 cursor-pointer">
                             <FaCommentDots color="#000" size="25" />
                         </div>
-                        <span className="text-xs text-white sm:text-gray-800 font-semibold">{commentsByPost?.length}</span>
+                        <span className="text-xs text-white sm:text-gray-800 font-semibold">{commentsByPost[post.id]?.length || 0}</span>
                     </button>
                     <Modal isOpen={isModalOpen} onClose={closeModal}>
                         <ModalPost post={post} closeModal={closeModal} videoRef={videoRef} />
@@ -213,4 +211,4 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
         </>
     )
 }
-export default memo(PostMainLikes);
+export default PostMainLikes;

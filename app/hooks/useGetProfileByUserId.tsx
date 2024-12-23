@@ -34,7 +34,9 @@ const useGetProfileByUserId = async (userId: string) => {
             user_id: profile?.id,
             name: profile?.name,
             image: profile?.image,
-            bio: profile?.bio
+            bio: profile?.bio,
+            followersCount: profile?.followersCount,
+            followingCount: profile?.followingCount
         }
     } catch (error) {
         throw error

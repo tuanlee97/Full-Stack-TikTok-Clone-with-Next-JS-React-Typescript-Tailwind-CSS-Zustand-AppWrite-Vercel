@@ -4,6 +4,9 @@ import BottomMenu from "@/app/components/BottomMenu"
 import ClientOnly from "@/app/components/ClientOnly"
 import PostUser from "@/app/components/profile/PostUser"
 import { useUser } from "@/app/context/user"
+import useCreateFollow from "@/app/hooks/useCreateFollow"
+import useIsFollow from "@/app/hooks/useIsFollow"
+import useUnFollow from "@/app/hooks/useUnFollow"
 import useUploadsUrl from "@/app/hooks/useUploadsUrl"
 import MainLayout from "@/app/layouts/MainLayout"
 import { useGeneralStore } from "@/app/stores/general"
@@ -16,14 +19,57 @@ import { BsPencil } from "react-icons/bs"
 export default function Profile({ params }: ProfilePageTypes) {
     const contextUser = useUser();
     const [activeTab, setActiveTab] = useState<number>(0)
+    const [isFollow, setIsFollow] = useState<boolean>(false)
     let { postsByUser, setPostsByUser } = usePostStore()
     let { setCurrentProfile, currentProfile } = useProfileStore()
     let { isEditProfileOpen, setIsEditProfileOpen } = useGeneralStore()
+    const { setIsLoginOpen } = useGeneralStore();
 
+    const handleFollow = async () => {
+        if (!contextUser?.user) return setIsLoginOpen(true);
+        try {
+            if (isFollow) {
+                await useUnFollow(params?.id);
+                setIsFollow(false)
+            }
+            else {
+                await useCreateFollow(params?.id);
+                setIsFollow(true)
+            }
+        } catch (error: any) {
+            if (error.response && error.response.status === 401) {
+                console.error('Unauthorized access, logging out...');
+                // Handle 401 Unauthorized error
+                contextUser?.logout();  // Assuming logout method exists in the context
+            } else {
+                // Handle other errors
+                console.error('Error:', error.message);
+            }
+        }
+
+    }
     useEffect(() => {
         setCurrentProfile(params?.id)
         setPostsByUser(params?.id)
-    }, [])
+        checkIsFollow();
+    }, [isFollow])
+
+    const checkIsFollow = async () => {
+        try {
+            const isFollow = await useIsFollow(params?.id);
+            setIsFollow(isFollow);
+        } catch (error: any) {
+            if (error.response && error.response.status === 401) {
+                console.error('Unauthorized access, logging out...');
+                // Handle 401 Unauthorized error
+                contextUser?.logout();  // Assuming logout method exists in the context
+            } else {
+                // Handle other errors
+                console.error('Error:', error.message);
+            }
+        }
+
+    }
 
     return (
         <>
@@ -76,8 +122,9 @@ export default function Profile({ params }: ProfilePageTypes) {
                                 </div>
                             ) : (
                                 <div className="flex item-center justify-center sm:justify-start">
-                                    <button className="flex item-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#F02C56]">
-                                        Follow
+
+                                    <button onClick={() => handleFollow()} className={`flex item-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold ${isFollow ? "bg-gray-500" : "bg-[#F02C56]"} hover:bg-[#F02C56]`}>
+                                        {isFollow ? "UnFollow" : "Follow"}
                                     </button>
                                 </div>
 
@@ -88,17 +135,17 @@ export default function Profile({ params }: ProfilePageTypes) {
 
                     <div className="flex items-center justify-center sm:justify-normal pt-4">
                         <div className="flex flex-col items-center sm:block mr-4">
-                            <span className="font-bold">10K</span>
+                            <span className="font-bold">{currentProfile?.followingCount}</span>
                             <span className="text-white sm:text-gray-500 font-light text-[15px] pl-1.5">Following</span>
                         </div>
                         <div className="flex flex-col items-center sm:block mr-4">
-                            <span className="font-bold">44K</span>
+                            <span className="font-bold">{currentProfile?.followersCount}</span>
                             <span className="text-white sm:text-gray-500 font-light text-[15px] pl-1.5">Followers</span>
                         </div>
                     </div>
 
                     <ClientOnly>
-                        <p className="pt-4 mr-4 text-gray-500 font-light text-[15px] pl-1.5 max-w-[500px]">
+                        <p className="pt-4 mr-4 text-white text-center font-light text-[15px] pl-1.5 max-w-[500px]">
                             {currentProfile?.bio}
                         </p>
                     </ClientOnly>

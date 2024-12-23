@@ -65,15 +65,22 @@ export default function Upload() {
         if (isError) return
         if (!file || !contextUser?.user) return
         setIsUploading(true)
-
         try {
-            await useCreatePost(file, contextUser?.user?.id, caption)
+            await useCreatePost(file, caption)
             router.push(`/profile/${contextUser?.user?.id}`)
             setIsUploading(false)
-        } catch (error) {
-            console.log(error)
-            setIsUploading(false)
-            alert(error)
+        }
+        catch (error: any) {
+            if (error.response && error.response.status === 401) {
+                console.error('Unauthorized access, logging out...');
+                // Handle 401 Unauthorized error
+                contextUser?.logout();  // Assuming logout method exists in the context
+            } else {
+                // Handle other errors
+                console.log(error)
+                setIsUploading(false)
+                alert(error)
+            }
         }
     }
 

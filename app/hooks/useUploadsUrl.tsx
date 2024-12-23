@@ -5,7 +5,7 @@ const useUploadsUrl = (fileUrl: string) => {
 
     if (!apiUrl || !fileUrl) return '/images/placeholder-user.jpg'
 
-    return `${apiUrl}/${fileUrl}`
+    return `${apiUrl}${fileUrl}`
 }
 
 export default useUploadsUrl

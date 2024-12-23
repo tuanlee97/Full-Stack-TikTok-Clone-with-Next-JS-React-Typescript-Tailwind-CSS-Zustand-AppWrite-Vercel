@@ -1,5 +1,4 @@
 import { useUser } from "@/app/context/user";
-import useCreateBucketUrl from "@/app/hooks/useCreateBucketUrl";
 import useSearchProfilesByName from "@/app/hooks/useSearchProfilesByName";
 import useUploadsUrl from "@/app/hooks/useUploadsUrl";
 import { useGeneralStore } from "@/app/stores/general";
@@ -89,7 +88,7 @@ export default function TopNav() {
                                             className="flex items-center justify-between w-full cursor-pointer hover:bg-[#F12B56] p-1 px-2 hover:text-white"
                                         >
                                             <div className="flex items-center">
-                                                <img className="rounded-md" width="40" src={useCreateBucketUrl(profile?.image)} />
+                                                <img className="rounded-md" width="40" src={useUploadsUrl(profile?.image)} />
                                                 <div className="truncate ml-2">{profile?.name}</div>
                                             </div>
                                         </Link>

@@ -204,7 +204,7 @@ export default function CommentsHeader({ post, params }: CommentsHeaderCompTypes
                     <div className="rounded-full bg-gray-200 p-2 cursor-pointer">
                         <BsChatDots size={25} />
                     </div>
-                    <span className="text-xs pl-2 text-gray-800 font-semibold">{commentsByPost?.length}</span>
+                    <span className="text-xs pl-2 text-gray-800 font-semibold">{commentsByPost[params.postId]?.length}</span>
                 </div>
             </div>
         </div>
