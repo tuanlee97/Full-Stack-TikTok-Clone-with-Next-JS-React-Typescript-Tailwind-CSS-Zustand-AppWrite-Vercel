@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { AiOutlinePlus } from "react-icons/ai"
 import { BsPencil } from "react-icons/bs"
-
+import { LuUserCheck } from 'react-icons/lu'
 export default function Profile({ params }: ProfilePageTypes) {
     const contextUser = useUser();
     const router = useRouter()
@@ -133,10 +133,14 @@ export default function Profile({ params }: ProfilePageTypes) {
                                     </button>
                                 </div>
                             ) : (
-                                <div className="flex item-center justify-center sm:justify-start">
+                                <div className="flex item-center justify-center sm:justify-start gap-2">
 
-                                    <button onClick={() => handleFollow()} className={`flex item-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold ${isFollow ? "bg-gray-500" : "bg-[#F02C56]"} hover:bg-[#F02C56]`}>
-                                        {isFollow ? "UnFollow" : "Follow"}
+                                    <button onClick={() => handleFollow()} className={`flex item-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold ${isFollow ? "bg-gray-500  hover:bg-gray-700" : "bg-[#F02C56]  hover:bg-[#F02C56]"}`}>
+                                        {isFollow ? <><LuUserCheck size={18} className="mr-2" /> Following</> : "Follow"}
+                                    </button>
+
+                                    <button className={`flex item-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-gray-500  hover:bg-gray-700`}>
+                                        Message
                                     </button>
                                 </div>
 

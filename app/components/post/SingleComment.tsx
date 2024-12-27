@@ -71,7 +71,7 @@ export default function SingleComment({ comment, params }: SingleCommentCompType
                             ) : null}
                         </div>
 
-                        <p className="text-[15px] text-white font-semibold sm:text-black">{comment.text}</p>
+                        <p className="text-[15px] text-white sm:text-black">{comment.text}</p>
 
                     </div>
                 </div>

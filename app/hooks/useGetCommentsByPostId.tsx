@@ -38,6 +38,7 @@
 
 import axios from 'axios';
 const useGetCommentsByPostId = async (postId: string) => {
+    console.log(postId)
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
     const response = await axios.get(`${API_URL}/comment/${postId}`);
     return response.data.data;

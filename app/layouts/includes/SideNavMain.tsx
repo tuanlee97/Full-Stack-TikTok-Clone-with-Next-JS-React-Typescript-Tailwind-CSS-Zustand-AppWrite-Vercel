@@ -27,6 +27,7 @@ export default function SideNavMain({ deviceType }: { deviceType: string }) {
         }
         if (type == 'profile') return router.push(`/profile/${contextUser?.user?.id}`)
         if (type == 'inbox') return router.push(`/inbox/${contextUser?.user?.id}`)
+        if (type == 'following') return router.push(`/following`)
     }
 
     return (
@@ -43,7 +44,9 @@ export default function SideNavMain({ deviceType }: { deviceType: string }) {
                                 sizeString="25"
                             />
                         </Link>
-                        <MenuItem iconString="Following" colorString="#000000" sizeString="25" />
+                        <div className="cursor-pointer" onClick={() => checkLogin('following')}>
+                            <MenuItem iconString="Following" colorString={pathname == '/following' ? '#F02C56' : ''} sizeString="25" />
+                        </div>
                         <MenuItem iconString="LIVE" colorString="#000000" sizeString="25" />
 
                         <div className="border-b lg:ml-2 mt-2" />

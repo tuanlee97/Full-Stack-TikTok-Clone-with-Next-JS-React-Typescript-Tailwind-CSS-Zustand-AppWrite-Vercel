@@ -22,6 +22,7 @@ export const useCommentStore = create<CommentStore>()(
                     set({ loading: true, error: null }); // Bắt đầu tải dữ liệu
 
                     try {
+                        console.log(postId);
                         const result = await useGetCommentsByPostId(postId);
 
                         set((state) => ({

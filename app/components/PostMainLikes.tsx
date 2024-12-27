@@ -3,12 +3,16 @@ import { useEffect, useRef, useState } from "react"
 import { AiFillHeart } from "react-icons/ai"
 import { BiLoaderCircle } from "react-icons/bi"
 import { FaCommentDots, FaShare } from "react-icons/fa"
+import { FiCheck, FiPlus } from "react-icons/fi"
 import { useUser } from "../context/user"
+import useCreateFollow from "../hooks/useCreateFollow"
 import useCreateLike from "../hooks/useCreateLike"
 import useDeleteLike from "../hooks/useDeleteLike"
 import useDeviceType from "../hooks/useDeviceType"
 import useGetLikesByPostId from "../hooks/useGetLikesByPostId"
+import useIsFollow from "../hooks/useIsFollow"
 import useIsLiked from "../hooks/useIsLiked"
+import useUnFollow from "../hooks/useUnFollow"
 import useUploadsUrl from "../hooks/useUploadsUrl"
 import { useCommentStore } from "../stores/comment"
 import { useGeneralStore } from "../stores/general"
@@ -30,16 +34,75 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
     const contextUser = useUser()
     const [hasClickedLike, setHasClickedLike] = useState<boolean>(false)
     const [userLiked, setUserLiked] = useState<boolean>(false)
-
+    const [isFollow, setIsFollow] = useState<boolean>(false)
+    const [showCheck, setShowCheck] = useState<boolean>(false);
     let { commentsByPost, setCommentsByPost } = useCommentStore();
     const [likes, setLikes] = useState<Like[]>([])
+
     const deviceType = useDeviceType();
     useEffect(() => {
         getAllLikesByPost()
         setCommentsByPost(post.id);
-    }, [post.id, isModalOpen])
 
-    useEffect(() => { hasUserLikedPost() }, [likes, contextUser])
+    }, [post.id, isModalOpen])
+    useEffect(() => {
+        if (contextUser?.user) {
+            checkIsFollow();
+        }
+    }, [isFollow]);
+    const checkIsFollow = async () => {
+        try {
+            const isFollow = await useIsFollow(post?.user_id);
+            setIsFollow(isFollow);
+        } catch (error: any) {
+            if (error.response && error.response.status === 401) {
+                console.error('Unauthorized access, logging out...');
+                // Handle 401 Unauthorized error
+                contextUser?.logout();  // Assuming logout method exists in the context
+            } else {
+                // Handle other errors
+                console.error('Error:', error.message);
+            }
+        }
+
+    }
+    useEffect(() => {
+        hasUserLikedPost()
+    }, [likes, contextUser]);
+    const handleFollow = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!contextUser?.user) return setIsLoginOpen(true);
+        try {
+            if (isFollow) {
+                await useUnFollow(post?.user_id);
+                setIsFollow(false)
+
+            }
+            else {
+                await useCreateFollow(post?.user_id);
+                setIsFollow(true)
+                handleShowCheck();
+            }
+        } catch (error: any) {
+            if (error.response && error.response.status === 401) {
+                console.error('Unauthorized access, logging out...');
+                // Handle 401 Unauthorized error
+                contextUser?.logout();  // Assuming logout method exists in the context
+            } else {
+                // Handle other errors
+                console.error('Error:', error.message);
+            }
+        }
+
+    }
+
+    const handleShowCheck = () => {
+        setShowCheck(true);
+
+        setTimeout(() => {
+            setShowCheck(false);
+        }, 1000);
+    };
 
     const getAllLikesByPost = async () => {
 
@@ -158,9 +221,13 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
         <>
             <div id={`PostMainLikes-${post?.id}`} className={`opacity-100 relative right-[60px] bottom-28 sm:right-0 sm:mr-[75px]`}>
                 <div className="absolute bottom-0 pl-2">
-                    <button className="cursor-pointer pb-4" onClick={() => router.push(`/profile/${post?.profile?.user_id}`)}>
-                        <img className="rounded-full max-h-[60px]" width="60" src={post?.profile?.image ? useUploadsUrl(post?.profile?.image) : `/images/placeholder-user.jpg`} />
-                    </button>
+                    <div className="pb-4">
+                        <button className="cursor-pointer relative" onClick={() => router.push(`/profile/${post?.profile?.user_id}`)}>
+                            {!isFollow && <FiPlus onClick={handleFollow} className="absolute duration-250 rounded-full bg-[#ff2626] bottom-0 left-1/2 translate-y-1/2 -translate-x-1/2 text-white" />}
+                            {showCheck && <FiCheck className="absolute duration-250 rounded-full bg-[#ff2626] bottom-0 left-1/2 translate-y-1/2 -translate-x-1/2 text-white" />}
+                            <img className={`rounded-full max-h-[60px] ${isFollow ? `` : `bg-white p-[1px]`}`} width="60" src={post?.profile?.image ? useUploadsUrl(post?.profile?.image) : `/images/placeholder-user.jpg`} />
+                        </button>
+                    </div>
                     <div className="pb-4 text-center">
                         <button
                             disabled={hasClickedLike}
