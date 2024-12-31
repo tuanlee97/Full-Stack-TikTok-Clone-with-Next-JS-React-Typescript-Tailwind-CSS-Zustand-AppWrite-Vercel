@@ -46,10 +46,12 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
 
     }, [post.id, isModalOpen])
     useEffect(() => {
+
         if (contextUser?.user) {
-            checkIsFollow();
+            if (contextUser?.user?.id == post?.user_id) return setIsFollow(true);
+            else checkIsFollow();
         }
-    }, [isFollow]);
+    }, [contextUser?.user]);
     const checkIsFollow = async () => {
         try {
             const isFollow = await useIsFollow(post?.user_id);

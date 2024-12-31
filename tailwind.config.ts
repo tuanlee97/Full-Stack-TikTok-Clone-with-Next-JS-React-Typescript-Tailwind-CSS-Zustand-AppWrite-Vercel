@@ -22,8 +22,36 @@ const config: Config = {
         'zoom-in-out': 'zoomInOut 1.5s ease-in-out infinite',
         'slide-up': 'slideUp 0.3s ease-out',
         'slide-down': 'slideDown 0.5s ease-out',
+        'wave': 'wave  1.5s ease-in-out infinite',
       },
       keyframes: {
+        wave: {
+          '0%': {
+            transform: "rotate(0deg)"
+          },
+          '15%': {
+            transform: "rotate(20deg)"
+          },
+          '30%': {
+            transform: "rotate(0deg)"
+          },
+          '45%': {
+            transform: "rotate(-20deg)"
+          },
+          '60%': {
+            transform: "rotate(0deg)"
+          },
+          '75%': {
+            transform: "rotate(10deg)"
+          },
+          '85%': {
+            transform: "rotate(0deg)"
+          },
+          '100%': {
+            transform: "rotate(0deg)"
+          }
+        },
+
         zoomIn: {
           '0%': {
             transform: 'scale(0.5)',

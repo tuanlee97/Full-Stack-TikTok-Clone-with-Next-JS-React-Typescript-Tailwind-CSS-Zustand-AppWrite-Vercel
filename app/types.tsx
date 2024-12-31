@@ -23,7 +23,19 @@ export interface User {
     bio: string,
     image: string,
 }
-
+export interface Message {
+    id: string;
+    sender_id: string;
+    receiver_id: string;
+    group_id: string;
+    text: string;
+    created_at: string;
+    profile: {
+        user_id: string;
+        name: string;
+        image: string;
+    }
+}
 export interface Profile {
     id: string;
     user_id: string;

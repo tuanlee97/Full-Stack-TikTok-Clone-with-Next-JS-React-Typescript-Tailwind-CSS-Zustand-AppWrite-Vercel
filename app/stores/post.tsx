@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 import useGetAllPosts from '../hooks/useGetAllPosts';
+import useGetAllPostsFollowing from '../hooks/useGetAllPostsFollowing';
 import useGetPostById from '../hooks/useGetPostById';
 import useGetPostsByUser from '../hooks/useGetPostsByUserId';
 import useGetPostsLikedByUserId from '../hooks/useGetPostsLikedByUserId';
@@ -13,9 +14,11 @@ interface PostStore {
     postsLikedByUser: Post[];
     postById: PostWithProfile | null;
     setAllPosts: () => void;
+    setAllPostsFollowing: () => void;
     setPostsByUser: (userId: string) => void;
     setPostsLikedByUser: () => void;
     setPostById: (postId: string) => void;
+    clearAllPosts: () => void;
 }
 
 export const usePostStore = create<PostStore>()(
@@ -23,6 +26,7 @@ export const usePostStore = create<PostStore>()(
         persist(
             (set) => ({
                 allPosts: [],
+                allPostsFollowing: [],
                 postsByUser: [],
                 postsLikedByUser: [],
                 postById: null,
@@ -34,6 +38,13 @@ export const usePostStore = create<PostStore>()(
                         total: result.total
                     });
 
+                },
+                setAllPostsFollowing: async () => {
+                    const result = await useGetAllPostsFollowing()
+                    set({
+                        allPosts: result.videos,
+                        total: result.total
+                    });
                 },
                 setPostsByUser: async (userId: string) => {
                     const result = await useGetPostsByUser(userId)
@@ -48,6 +59,7 @@ export const usePostStore = create<PostStore>()(
                     const result = await useGetPostById(postId)
                     set({ postById: result })
                 },
+                clearAllPosts: () => set({ allPosts: [] }),
             }),
             {
                 name: 'store',
