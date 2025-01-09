@@ -23,8 +23,13 @@ const config: Config = {
         'slide-up': 'slideUp 0.3s ease-out',
         'slide-down': 'slideDown 0.5s ease-out',
         'wave': 'wave  1.5s ease-in-out infinite',
+        'expandWidth': 'expandWidth 2.5s ease-in-out',
       },
       keyframes: {
+        expandWidth: {
+          '0%': { width: '0%' },
+          '100%': { width: '100%' },
+        },
         wave: {
           '0%': {
             transform: "rotate(0deg)"

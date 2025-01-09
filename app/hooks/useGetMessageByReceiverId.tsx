@@ -1,5 +1,5 @@
 import axios from 'axios';
-const useGetAllConversation = async () => {
+const useGetMessageByReceiverId = async (receiverId: string) => {
 
     try {
         const token = localStorage.getItem('token');
@@ -11,7 +11,7 @@ const useGetAllConversation = async () => {
                 'Authorization': `Bearer ${token}`
             }
         }
-        const response = await axios.get(`${API_URL}/inbox`, options);
+        const response = await axios.get(`${API_URL}/inbox/receiver/${receiverId}`, options);
         console.log(response.data.data)
         return response.data.data;
     } catch (error) {
@@ -19,4 +19,4 @@ const useGetAllConversation = async () => {
     }
 
 };
-export default useGetAllConversation
+export default useGetMessageByReceiverId

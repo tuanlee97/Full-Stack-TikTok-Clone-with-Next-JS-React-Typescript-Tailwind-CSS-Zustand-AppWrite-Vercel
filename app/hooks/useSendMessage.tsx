@@ -1,5 +1,5 @@
 import axios from 'axios';
-const useGetAllConversation = async () => {
+const useSendMessage = async (receiverId: string, groupId: string | null, message: string) => {
 
     try {
         const token = localStorage.getItem('token');
@@ -11,12 +11,12 @@ const useGetAllConversation = async () => {
                 'Authorization': `Bearer ${token}`
             }
         }
-        const response = await axios.get(`${API_URL}/inbox`, options);
-        console.log(response.data.data)
-        return response.data.data;
+        const data = { receiver_id: receiverId, group_id: groupId, message };
+        const response = await axios.post(`${API_URL}/inbox/add`, data, options);
+        return response.data;
     } catch (error) {
         throw error
     }
 
 };
-export default useGetAllConversation
+export default useSendMessage

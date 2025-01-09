@@ -27,10 +27,10 @@ export interface Message {
     id: string;
     sender_id: string;
     receiver_id: string;
-    group_id: string;
-    text: string;
+    group_id: string | null;
+    message: string;
     created_at: string;
-    profile: {
+    profile?: {
         user_id: string;
         name: string;
         image: string;

@@ -4,7 +4,7 @@ import useGetAllConversation from '../hooks/useGetAllConversation';
 import { Message } from '../types';
 
 interface MessageStore {
-    conversations: { [postId: string]: Message[] };
+    results: { [postId: string]: { total: number, conversations: Message[] } };
     total: number;
     loading: boolean;
     error: string | null;
@@ -16,7 +16,7 @@ export const useMessageStore = create<MessageStore>()(
     devtools(
         persist(
             (set) => ({
-                conversations: {},
+                results: {},
                 total: 0,
                 loading: false,
                 error: null,
@@ -25,18 +25,22 @@ export const useMessageStore = create<MessageStore>()(
                     try {
                         const result = await useGetAllConversation()
 
+                        if (result.status && result.status != 200) return set({ error: `${result.status}` })
+
                         set((state) => ({
-                            conversations: {
-                                ...state.conversations,
-                                [userId]: result, // Lưu bình luận cho từng postId
+                            results: {
+                                ...state.results,
+                                [userId]: result,
                             },
                             loading: false,
+                            error: null
                         }));
+
                     } catch (error) {
                         set({ error: "Không thể tải bình luận. Vui lòng thử lại.", loading: false });
                     }
                 },
-                clearMessages: () => set({ conversations: {}, loading: false, error: null }),
+                clearMessages: () => set({ results: {}, loading: false, error: null }),
             }),
 
             {
