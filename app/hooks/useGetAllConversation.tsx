@@ -11,8 +11,7 @@ const useGetAllConversation = async () => {
                 'Authorization': `Bearer ${token}`
             }
         }
-        const response = await axios.get(`${API_URL}/inbox`, options);
-        console.log(response.data.data)
+        const response = await axios.get(`${API_URL}/conversations`, options);
         return response.data.data;
     } catch (error) {
         throw error

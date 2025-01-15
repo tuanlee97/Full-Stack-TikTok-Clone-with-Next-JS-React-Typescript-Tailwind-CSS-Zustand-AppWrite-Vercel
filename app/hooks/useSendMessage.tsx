@@ -1,5 +1,5 @@
 import axios from 'axios';
-const useSendMessage = async (receiverId: string, groupId: string | null, message: string) => {
+const useSendMessage = async (conversationId: number, message: string) => {
 
     try {
         const token = localStorage.getItem('token');
@@ -11,7 +11,7 @@ const useSendMessage = async (receiverId: string, groupId: string | null, messag
                 'Authorization': `Bearer ${token}`
             }
         }
-        const data = { receiver_id: receiverId, group_id: groupId, message };
+        const data = { conversationId, message };
         const response = await axios.post(`${API_URL}/inbox/add`, data, options);
         return response.data;
     } catch (error) {

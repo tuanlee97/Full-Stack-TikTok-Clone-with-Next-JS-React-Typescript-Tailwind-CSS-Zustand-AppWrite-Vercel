@@ -1,5 +1,6 @@
 import axios from 'axios';
-const useDeleteInbox = async (id: string) => {
+const useUpdateSeenMessage = async (conversationId: number) => {
+
     try {
         const token = localStorage.getItem('token');
         if (!token) return console.error('Token not found in localStorage');
@@ -10,10 +11,12 @@ const useDeleteInbox = async (id: string) => {
                 'Authorization': `Bearer ${token}`
             }
         }
-        const response = await axios.delete(`${API_URL}/inbox/${id}`, options);
-        return response.data.data;
+        const data = { conversationId };
+        const response = await axios.post(`${API_URL}/inbox/updateSeenBy`, data, options);
+        return response.data;
     } catch (error) {
-        throw error;
+        throw error
     }
-}
-export default useDeleteInbox
+
+};
+export default useUpdateSeenMessage

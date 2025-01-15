@@ -23,18 +23,30 @@ export interface User {
     bio: string,
     image: string,
 }
+export interface Receiver {
+    id: string
+    name: string
+    image: any
+}
 export interface Message {
     id: string;
     sender_id: string;
-    receiver_id: string;
-    group_id: string | null;
+    conversation_id: number;
     message: string;
+    seen_by?: number[];
+    media?: string;
+    status?: string;
+    isDelete?: boolean;
+    delete_at?: string;
     created_at: string;
-    profile?: {
-        user_id: string;
-        name: string;
-        image: string;
-    }
+    receiver_ids?: number[]
+}
+export interface Conversation {
+    id: number;
+    conversation_name: string;
+    members: number[];
+    messages: Message[];
+    receivers: Receiver[];
 }
 export interface Profile {
     id: string;

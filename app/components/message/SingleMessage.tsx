@@ -1,38 +1,40 @@
 import { useUser } from "@/app/context/user"
-import useDeleteInbox from "@/app/hooks/useDeleteInbox"
+import useDeleteConversation from "@/app/hooks/useDeleteConversation"
 import useUploadsUrl from "@/app/hooks/useUploadsUrl"
-import { useCommentStore } from "@/app/stores/comment"
-import { Message } from "@/app/types"
+// import { useCommentStore } from "@/app/stores/comment"
+import { Conversation, Receiver } from "@/app/types"
 import moment from "moment"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { BiLoaderCircle } from "react-icons/bi"
 import { BsTrash3 } from "react-icons/bs"
 interface SingleMessageProps {
-    conversation: Message;
-    activeSwipeId: string | null;
-    setActiveSwipeId: (id: string | null) => void;
+    conversation: Conversation;
+    activeSwipeId: number | null;
+    setActiveSwipeId: (id: number | null) => void;
     fetchConversations: () => Promise<void>;
 }
 const SingleMessage: React.FC<SingleMessageProps> = ({ conversation, activeSwipeId, setActiveSwipeId, fetchConversations }) => {
     const router = useRouter()
     const contextUser = useUser()
 
-    let { setCommentsByPost } = useCommentStore();
-    let connectId = String(conversation.receiver_id) === contextUser?.user?.id ? conversation.sender_id : conversation.receiver_id
-
+    // let { setCommentsByPost } = useCommentStore();
+    //let conversationId = String(conversation.receiver_ids) === contextUser?.user?.id ? conversation.sender_id : conversation.receiver_ids
+    const conversationId = conversation.id;
+    const messages = conversation.messages;
+    const latestMessage = messages[messages.length - 1];
     const [isDeleting, setIsDeleting] = useState(false)
     const [swipeOffset, setSwipeOffset] = useState(false) // Khoảng cách swipe
     // const swipeStartRef = useRef(0) // Lưu vị trí bắt đầu swipe
     const [swiping, setSwiping] = useState(false) // Trạng thái swipe
     const singleMessageRef = useRef<HTMLDivElement | null>(null);
     const deleteThisComment = async () => {
-        let res = confirm("Are you sure you weant to delete this comment?")
+        let res = confirm("Are you sure you weant to delete this conversation?")
         if (!res) return
 
         try {
             setIsDeleting(true)
-            await useDeleteInbox(conversation?.id)
+            await useDeleteConversation(conversationId)
             // setCommentsByPost(params?.postId)
             setIsDeleting(false)
             setSwipeOffset(false);
@@ -52,17 +54,17 @@ const SingleMessage: React.FC<SingleMessageProps> = ({ conversation, activeSwipe
     const onClickProfile = async (e: React.MouseEvent) => {
         e.stopPropagation();
 
-        router.push(`/profile/${connectId}`)
+        // router.push(`/profile/${conversationId}`)
     }
     const onClickDetail = async () => {
-        router.push(`/inbox/${contextUser?.user?.id}/${connectId}`)
+        router.push(`/inbox/${conversationId}`)
     }
     // Xử lý sự kiện khi bắt đầu swipe
     const handleTouchStart = (e: React.TouchEvent) => {
         setSwiping(true);
         //swipeStartRef.current = e.touches[0].clientX;
         setSwipeOffset(false);
-        setActiveSwipeId(conversation.id);  // Thiết lập trạng thái vuốt cho tin nhắn này
+        setActiveSwipeId(conversationId);  // Thiết lập trạng thái vuốt cho tin nhắn này
     };
 
     // Xử lý khi di chuyển ngón tay
@@ -82,8 +84,8 @@ const SingleMessage: React.FC<SingleMessageProps> = ({ conversation, activeSwipe
         setSwiping(true);
         //swipeStartRef.current = e.clientX;
         setSwipeOffset(false);
-        console.log("New active swipe id " + conversation.id)
-        setActiveSwipeId(conversation.id);  // Thiết lập trạng thái vuốt cho tin nhắn này
+        console.log("New active swipe id " + conversationId)
+        setActiveSwipeId(conversationId);  // Thiết lập trạng thái vuốt cho tin nhắn này
     };
 
     // Xử lý khi di chuyển chuột (desktop)
@@ -122,11 +124,11 @@ const SingleMessage: React.FC<SingleMessageProps> = ({ conversation, activeSwipe
 
         };
     }, [setActiveSwipeId]);
-
+    const isSeen = latestMessage.seen_by?.find((id: number) => String(id) === contextUser?.user?.id)
     return (
         <div className="flex" ref={singleMessageRef} >
             <div className={`w-full cursor-pointer bg-[#181818] hover:bg-[#212121] duration-200 px-4`}
-                // onClick={onClickDetail}
+                onClick={onClickDetail}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
@@ -137,22 +139,27 @@ const SingleMessage: React.FC<SingleMessageProps> = ({ conversation, activeSwipe
                 <div className="py-4 SingleMessage transition-transform duration-200 ease-out" style={{ transform: `translateX(-${swipeOffset}px)` }}>
                     <div className="flex items-start relative w-full">
                         <div className="">
-                            <div onClick={onClickProfile} className="cursor-pointer">
-                                <img
-                                    className="rounded-full min-w-[40px] h-[40px] lg:mx-0 mx-auto"
-                                    width={"40"}
-                                    height={"40"}
-                                    src={useUploadsUrl(conversation.profile?.image || "")}
-                                />
-                            </div>
+                            {
+                                conversation.receivers.map((receiver: Receiver) => (
+                                    <div key={receiver.id} onClick={onClickProfile} className="cursor-pointer">
+                                        <img
+                                            className="rounded-full min-w-[40px] h-[40px] lg:mx-0 mx-auto"
+                                            width={"40"}
+                                            height={"40"}
+                                            src={useUploadsUrl(receiver.image || "")}
+                                        />
+                                    </div>
+                                ))
+                            }
+
                         </div>
 
                         <div className="ml-3  text-[18px] text-white sm:text-gray-600 flex items-center justify-between">
                             <div className="">
-                                <p className="text-[15px] font-semibold ">{conversation?.profile?.name}</p>
-                                <p className="text-[13px] font-normal text-white sm:text-black line-clamp-1 ">{conversation.message}</p>
+                                <p className={`text-[15px] ${isSeen ? 'font-normal' : 'font-semibold'} `}>{conversation.conversation_name || conversation.receivers[0].name}</p>
+                                <p className={`text-[13px] ${isSeen ? 'font-normal' : 'font-semibold'} text-white sm:text-black line-clamp-1 `}>{latestMessage.message}</p>
                                 <span className="text-[12px] text-gray-300 sm:text-gray-600 font-light sm:ml-1">
-                                    {moment(conversation?.created_at).calendar()}
+                                    {moment(latestMessage?.created_at).calendar()}
                                 </span>
                             </div>
                             {/* 

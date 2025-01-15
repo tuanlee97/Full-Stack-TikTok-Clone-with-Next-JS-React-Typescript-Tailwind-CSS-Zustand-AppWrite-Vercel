@@ -26,7 +26,7 @@ export default function SideNavMain({ deviceType }: { deviceType: string }) {
             return
         }
         if (type == 'profile') return router.push(`/profile/${contextUser?.user?.id}`)
-        if (type == 'inbox') return router.push(`/inbox/${contextUser?.user?.id}`)
+        if (type == 'inbox') return router.push(`/inbox`)
         if (type == 'following') return router.push(`/following`)
     }
 

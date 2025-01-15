@@ -2,16 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Message } from '../types';
 
-const useWebSocket = (senderId: string, receiverId: string) => {
+const useWebSocket = (senderId: string) => {
     const socket = useRef<WebSocket | null>(null);
     const [pendingMessages, setPendingMessages] = useState<Map<string, any>>(new Map());
     const [newTempMessages, setNewTempMessages] = useState<Message[]>([]);
     useEffect(() => {
-        if (!senderId || !receiverId) return;
+        if (!senderId) return;
 
         const websocketUrl = window.location.hostname === 'localhost'
-            ? `ws://${process.env.NEXT_PUBLIC_WEBSOCKET_DOMAIN}?sender_id=${senderId}&receiver_id=${receiverId}`
-            : `wss://${process.env.NEXT_PUBLIC_WEBSOCKET_DOMAIN}?sender_id=${senderId}&receiver_id=${receiverId}`;
+            ? `ws://${process.env.NEXT_PUBLIC_WEBSOCKET_DOMAIN}?user_id=${senderId}`
+            : `wss://${process.env.NEXT_PUBLIC_WEBSOCKET_DOMAIN}?user_id=${senderId}`;
 
         // Kết nối WebSocket
         socket.current = new WebSocket(websocketUrl); // URL của WebSocket server
@@ -60,7 +60,6 @@ const useWebSocket = (senderId: string, receiverId: string) => {
     }, [senderId]);
 
     const sendMessage = async (newMessage: Message) => {
-
 
         // Gửi tin nhắn qua WebSocket
         if (socket.current?.readyState === WebSocket.OPEN) {
