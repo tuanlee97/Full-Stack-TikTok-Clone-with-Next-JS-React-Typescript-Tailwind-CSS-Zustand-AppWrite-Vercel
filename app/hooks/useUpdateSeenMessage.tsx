@@ -12,7 +12,7 @@ const useUpdateSeenMessage = async (conversationId: number) => {
             }
         }
         const data = { conversationId };
-        const response = await axios.post(`${API_URL}/inbox/updateSeenBy`, data, options);
+        const response = await axios.post(`${API_URL}/messages/updateSeenBy`, data, options);
         return response.data;
     } catch (error) {
         throw error

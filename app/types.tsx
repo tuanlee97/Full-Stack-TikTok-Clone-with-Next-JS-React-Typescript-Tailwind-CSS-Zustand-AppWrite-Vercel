@@ -34,6 +34,7 @@ export interface Message {
     conversation_id: number;
     message: string;
     seen_by?: number[];
+    hidden_id: string[];
     media?: string;
     status?: string;
     isDelete?: boolean;

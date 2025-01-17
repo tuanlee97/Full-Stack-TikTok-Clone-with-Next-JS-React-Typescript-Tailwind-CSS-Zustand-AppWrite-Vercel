@@ -2,6 +2,7 @@
 import { useUser } from "@/app/context/user";
 import useGetMessageByConversationId from "@/app/hooks/useGetMessageByReceiverId";
 import useSendMessage from "@/app/hooks/useSendMessage";
+import useUnsendMessage from "@/app/hooks/useUnsendMessage";
 import useUpdateSeenMessage from "@/app/hooks/useUpdateSeenMessage";
 import useUploadsUrl from "@/app/hooks/useUploadsUrl";
 import useWebSocket from "@/app/hooks/useWebSocket";
@@ -28,6 +29,11 @@ export default function Inbox({ params }: { params: { id: number } }) {
     const [text, setText] = useState<string>("")
     const [pending, setPending] = useState<boolean>(false)
     const [receivers, setReceivers] = useState<Profile[]>([]);
+
+    const [showMenu, setShowMenu] = useState<boolean>(false);
+    // const [menuPosition, setMenuPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+    const [conversationSelected, setConversationSelected] = useState<string>("");
+    const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
 
     const contextUser = useUser()
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -68,7 +74,7 @@ export default function Inbox({ params }: { params: { id: number } }) {
     const fetchMessages = useCallback(async () => {
         try {
             const res = await useGetMessageByConversationId(params.id);
-            console.log(res)
+
             setMessages(res.messages);
             setReceivers(res.receivers);
             setConversationName(res.conversation_name);
@@ -114,8 +120,8 @@ export default function Inbox({ params }: { params: { id: number } }) {
             conversation_id: params.id,
             message: text,
             created_at: new Date().toISOString(),
-            receiver_ids: receiver_ids
-
+            receiver_ids: receiver_ids,
+            hidden_id: []
         };
         setMessages((prevMessages) => [...prevMessages, newMessage]);
 
@@ -144,7 +150,6 @@ export default function Inbox({ params }: { params: { id: number } }) {
 
     const checkSeenBy = (messages: Message[], currentUserId: string) => {
         let isUpdate = false;
-
         messages.forEach(message => {
             if (currentUserId && message.seen_by && !message.seen_by.includes(Number(currentUserId))) {
                 isUpdate = true;
@@ -159,15 +164,72 @@ export default function Inbox({ params }: { params: { id: number } }) {
 
     useEffect(() => {
         let currentUserId = contextUser?.user?.id || '';
+        if (!currentUserId || messages.length === 0) return
+
         const isUpdate = checkSeenBy(messages, currentUserId);
+
         if (isUpdate) useUpdateSeenMessage(params.id);
-    }, [])
+
+    }, [contextUser?.user?.id, messages])
     const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             handleSendMessage(e as any);
         }
     }
-    console.log(messages)
+
+    //Menu Context
+
+
+    // Hàm xử lý chuột phải (desktop)
+    const handleContextMenu = (event: React.MouseEvent, conversationId: string) => {
+        event.preventDefault();
+        setConversationSelected(conversationId);
+        // setMenuPosition({ x: event.pageX, y: event.pageY });
+        setShowMenu(true);
+    };
+
+    // Hàm xử lý click để đóng menu
+    const handleClick = () => {
+        setShowMenu(false);
+        setConversationSelected("");
+    };
+
+    // Hàm xử lý long press (mobile)
+    const handleTouchStart = (conversationId: string) => {
+        const timer = setTimeout(() => {
+            alert('Long press detected, showing menu.');
+            setShowMenu(true);
+            setConversationSelected(conversationId);
+        }, 1000); // Thời gian long press (1 giây)
+        setLongPressTimer(timer);
+    };
+
+    const handleTouchEnd = (): void => {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+        }
+        setConversationSelected("");
+    };
+
+    // Hàm thu hồi tin nhắn
+    const recallMessage = (option: 'self' | 'both', messageId: string): void => {
+        alert(`Thu hồi tin nhắn ${messageId} với tùy chọn: ${option}`);
+        setShowMenu(false);
+        setConversationSelected('');
+        unSendMessage({
+            messageId: messageId,
+            type: option
+        })
+    };
+
+    const unSendMessage = async ({ messageId, type }: { messageId: string, type: string }) => {
+        await useUnsendMessage({
+            messageId: messageId,
+            type: type
+        });
+        fetchMessages();
+    }
+
     return (
         <section className="flex flex-col h-screen bg-[#181818]">
             {/* Header */}
@@ -194,35 +256,65 @@ export default function Inbox({ params }: { params: { id: number } }) {
             {/* Message Area */}
             <div className="pt-[75px] pb-[95px] flex-1 overflow-y-auto px-6 space-y-2 ">
                 {
-                    messages.map((_, index) => (
-                        <div key={_.id} className="w-full">
-                            <div className={` text-white py-2 px-4 rounded-lg w-1/2 ${contextUser?.user?.id === String(_.sender_id) ? "ml-auto bg-[#D3427A] " : "mr-auto bg-gray-600"}`}>
-                                {_.message}
-                                <p className="text-[10px] text-right">{moment(_.created_at).calendar()}</p>
+                    messages.map((_) =>
+                        contextUser?.user?.id && !_.hidden_id.includes(contextUser?.user?.id) &&
+                        (
+                            <div id={`message-${_.id}`} key={_.id}
+                                onContextMenu={(e) => handleContextMenu(e, _.id)}
+                                onClick={handleClick}
+                                onTouchStart={() => handleTouchStart(_.id)}
+                                onTouchEnd={handleTouchEnd}
+
+                                className={`w-full ${conversationSelected !== _.id && showMenu ? 'blur-sm' : ''}`}>
+                                <div className={`relative text-white py-2 px-4 rounded-lg w-1/2 ${contextUser?.user?.id === String(_.sender_id) ? "ml-auto bg-[#D3427A] " : "mr-auto bg-gray-600"}`}>
+                                    {_.message}
+                                    <p className="text-[10px] text-right">{moment(_.created_at).calendar()}</p>
+                                    {conversationSelected === _.id && showMenu && (
+                                        <div
+                                            className="context-menu top-auto right-0 mt-3 w-full absolute text-black bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                                            <ul className="list-none p-0 divide-y-2">
+                                                <li className="cursor-pointer  p-4 hover:bg-gray-100 text-sm font-semibold"
+                                                    onClick={() => recallMessage('self', _.id)}
+                                                >
+                                                    {contextUser?.user?.id === String(_.sender_id) ? `Unsend for you` : `Remove`}
+                                                    <p className="text-xs text-gray-500 font-normal">This will remove the message from your devices. Other chat members will still be able to see it.</p>
+                                                </li>
+                                                {
+                                                    contextUser?.user?.id === String(_.sender_id) &&
+                                                    <li
+                                                        onClick={() => recallMessage('both', _.id)}
+                                                        className="cursor-pointer  p-4 hover:bg-gray-100 text-sm font-semibold"
+                                                    >
+                                                        Unsend for everyone
+                                                        <p className="text-xs text-gray-500 font-normal">This message will be unsent for everyone in the chat. Others may have already seen or forwarded it. Unsent messages can still be included in reports.</p>
+                                                    </li>
+                                                }
+
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Context Menu (Desktop) */}
+
+                                {pendingMessages.has(_.id) && pendingMessages.get(_.id)?.pending && (
+                                    <div className="flex justify-end mt-1">
+                                        <CiClock2 color="#FFFFFF" size={14} />
+                                    </div>
+                                )}
+
+                                {pendingMessages.has(_.id) && pendingMessages.get(_.id)?.error && (
+                                    <div className="flex justify-end mt-1 text-[10px] text-red-600">
+                                        {pendingMessages.get(_.id)?.error}
+                                    </div>
+                                )}
+
                             </div>
-                            {/* {index === messages.length - 1 &&
-                                <div>
-                                    <img
-                                        className="rounded-full min-w-[12px] h-[12px] lg:mx-0 my-1 ml-auto"
-                                        width={"12"} height={"12"}
-                                        src={useUploadsUrl("")} />
-                                </div>
-                            } */}
+                        )
 
-                            {pendingMessages.has(_.id) && pendingMessages.get(_.id)?.pending && (
-                                <div className="flex justify-end mt-1">
-                                    <CiClock2 color="#FFFFFF" size={14} />
-                                </div>
-                            )}
 
-                            {pendingMessages.has(_.id) && pendingMessages.get(_.id)?.error && (
-                                <div className="flex justify-end mt-1 text-[10px] text-red-600">
-                                    {pendingMessages.get(_.id)?.error}
-                                </div>
-                            )}
 
-                        </div>
-                    )
+
                     )}
                 <div ref={messagesEndRef} />
             </div>

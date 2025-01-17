@@ -22,7 +22,9 @@ const SingleMessage: React.FC<SingleMessageProps> = ({ conversation, activeSwipe
     //let conversationId = String(conversation.receiver_ids) === contextUser?.user?.id ? conversation.sender_id : conversation.receiver_ids
     const conversationId = conversation.id;
     const messages = conversation.messages;
+
     const latestMessage = messages[messages.length - 1];
+
     const [isDeleting, setIsDeleting] = useState(false)
     const [swipeOffset, setSwipeOffset] = useState(false) // Khoảng cách swipe
     // const swipeStartRef = useRef(0) // Lưu vị trí bắt đầu swipe
@@ -84,7 +86,6 @@ const SingleMessage: React.FC<SingleMessageProps> = ({ conversation, activeSwipe
         setSwiping(true);
         //swipeStartRef.current = e.clientX;
         setSwipeOffset(false);
-        console.log("New active swipe id " + conversationId)
         setActiveSwipeId(conversationId);  // Thiết lập trạng thái vuốt cho tin nhắn này
     };
 
@@ -104,10 +105,9 @@ const SingleMessage: React.FC<SingleMessageProps> = ({ conversation, activeSwipe
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            console.log(event.target)
-            console.log(singleMessageRef.current)
+
             if (singleMessageRef.current && !singleMessageRef.current.contains(event.target as Node)) {
-                console.log("click outside " + activeSwipeId)
+
                 setSwipeOffset(false);
                 setSwiping(false); // Đóng trạng thái swiping nếu click ra ngoài
                 setActiveSwipeId(null); // Đặt lại activeSwipeId khi click ra ngoài

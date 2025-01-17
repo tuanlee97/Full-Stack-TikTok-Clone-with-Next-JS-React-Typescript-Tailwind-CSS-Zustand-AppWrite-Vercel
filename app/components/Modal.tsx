@@ -12,15 +12,15 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
 
     return (
         <div
-            className={`animate-slide-up sm:animate-none modal fixed sm:max-h-full left-0 bottom-0 sm:inset-0  w-screen bg-transparent flex justify-center items-center z-40`}
+            className={`rounded-t-3xl shadow-white shadow-2xl animate-slide-up sm:animate-none modal fixed sm:max-h-full left-0 bottom-0 sm:inset-0  w-screen bg-transparent flex justify-center items-center z-40`}
             onClick={onClose}
         >
             <div
-                className="sm:bg-white rounded-lg w-full relative"
+                className="sm:bg-white  w-full relative"
                 onClick={(e) => e.stopPropagation()}
             >
                 <button
-                    className="absolute top-2 right-2 text-lg bg-transparent border-none cursor-pointer"
+                    className="absolute top-2 right-2 text-5xl bg-transparent border-none cursor-pointer"
                     onClick={onClose}
                 >
                     &times;

@@ -11,7 +11,7 @@ const useGetMessageByConversationId = async (conversationId: number) => {
                 'Authorization': `Bearer ${token}`
             }
         }
-        const response = await axios.get(`${API_URL}/conversation/${conversationId}`, options);
+        const response = await axios.get(`${API_URL}/conversations/${conversationId}`, options);
         return response.data.data;
     } catch (error) {
         throw error

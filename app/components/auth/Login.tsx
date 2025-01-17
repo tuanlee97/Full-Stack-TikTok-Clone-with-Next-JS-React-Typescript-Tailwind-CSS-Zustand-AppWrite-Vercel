@@ -11,7 +11,7 @@ export default function Login() {
     const contextUser = useUser()
 
     const [loading, setLoading] = useState<boolean>(false);
-    const [email, setEmail] = useState<string | ''>('user04@chatnail.com');
+    const [email, setEmail] = useState<string | ''>('admin@example.com');
     const [password, setPassword] = useState<string | ''>('admin@123');
     const [error, setError] = useState<ShowErrorObject | null>(null)
 

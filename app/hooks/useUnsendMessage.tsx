@@ -1,6 +1,5 @@
 import axios from 'axios';
-const useSendMessage = async (conversationId: number, message: string) => {
-
+const useUnsendMessage = async (data: { messageId: string, type: string }) => {
     try {
         const token = localStorage.getItem('token');
         if (!token) return console.error('Token not found in localStorage');
@@ -11,12 +10,10 @@ const useSendMessage = async (conversationId: number, message: string) => {
                 'Authorization': `Bearer ${token}`
             }
         }
-        const data = { conversationId, message };
-        const response = await axios.post(`${API_URL}/messages/add`, data, options);
-        return response.data;
+        const response = await axios.patch(`${API_URL}/messages/unsend`, data, options);
+        return response.data.data;
     } catch (error) {
-        throw error
+        throw error;
     }
-
-};
-export default useSendMessage
+}
+export default useUnsendMessage
