@@ -28,6 +28,11 @@ export interface Receiver {
     name: string
     image: any
 }
+export interface Thumbnail {
+    url: string;
+    type: 'image' | 'video';
+    file: File;
+}
 export interface Message {
     id: string;
     sender_id: string;
@@ -35,7 +40,7 @@ export interface Message {
     message: string;
     seen_by?: number[];
     hidden_id: string[];
-    media?: string;
+    media?: Thumbnail[];
     status?: string;
     isDelete?: boolean;
     delete_at?: string;

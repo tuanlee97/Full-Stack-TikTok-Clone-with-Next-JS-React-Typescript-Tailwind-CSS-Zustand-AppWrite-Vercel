@@ -1,5 +1,5 @@
 import axios from 'axios';
-const useSendMessage = async (conversationId: number, message: string) => {
+const useSendMessage = async (data: FormData) => {
 
     try {
         const token = localStorage.getItem('token');
@@ -8,10 +8,10 @@ const useSendMessage = async (conversationId: number, message: string) => {
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
         const options = {
             headers: {
+                'Content-Type': 'multipart/form-data',
                 'Authorization': `Bearer ${token}`
             }
         }
-        const data = { conversationId, message };
         const response = await axios.post(`${API_URL}/messages/add`, data, options);
         return response.data;
     } catch (error) {

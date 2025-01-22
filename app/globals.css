@@ -11,13 +11,28 @@
   ::-webkit-scrollbar {
     width: 6px;
   }
+
   .scrollbar-w-0::-webkit-scrollbar {
     width: 0px;
   }
+
   @media screen and (max-width: 768px) {
     ::-webkit-scrollbar {
       width: 0;
       height: 0;
+    }
+
+    .scrollx-visible::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    .scrollx-visible::-webkit-scrollbar-thumb {
+      background: rgba(22, 24, 35, 0.5);
+    }
+
+    .scrollx-visible::-webkit-scrollbar-thumb:hover {
+      background: rgba(22, 24, 35, 0.8);
     }
   }
 

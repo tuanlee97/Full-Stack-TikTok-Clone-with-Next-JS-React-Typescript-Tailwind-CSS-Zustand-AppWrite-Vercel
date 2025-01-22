@@ -23,7 +23,10 @@ const SingleMessage: React.FC<SingleMessageProps> = ({ conversation, activeSwipe
     const conversationId = conversation.id;
     const messages = conversation.messages;
 
-    const latestMessage = messages[messages.length - 1];
+
+    const latestMessage = messages ? messages[messages.length - 1] : null;
+    const isSeen = latestMessage?.seen_by?.find((id: number) => String(id) === contextUser?.user?.id)
+
 
     const [isDeleting, setIsDeleting] = useState(false)
     const [swipeOffset, setSwipeOffset] = useState(false) // Khoảng cách swipe
@@ -124,7 +127,9 @@ const SingleMessage: React.FC<SingleMessageProps> = ({ conversation, activeSwipe
 
         };
     }, [setActiveSwipeId]);
-    const isSeen = latestMessage.seen_by?.find((id: number) => String(id) === contextUser?.user?.id)
+
+    const limitReceivers = conversation.receivers.length > 4 ? conversation.receivers.slice(0, 4) : conversation.receivers
+
     return (
         <div className="flex" ref={singleMessageRef} >
             <div className={`w-full cursor-pointer bg-[#181818] hover:bg-[#212121] duration-200 px-4`}
@@ -138,47 +143,57 @@ const SingleMessage: React.FC<SingleMessageProps> = ({ conversation, activeSwipe
             >
                 <div className="py-4 SingleMessage transition-transform duration-200 ease-out" style={{ transform: `translateX(-${swipeOffset}px)` }}>
                     <div className="flex items-start relative w-full">
-                        <div className="">
-                            {
-                                conversation.receivers.map((receiver: Receiver) => (
-                                    <div key={receiver.id} onClick={onClickProfile} className="cursor-pointer">
-                                        <img
-                                            className="rounded-full min-w-[40px] h-[40px] lg:mx-0 mx-auto"
-                                            width={"40"}
-                                            height={"40"}
-                                            src={useUploadsUrl(receiver.image || "")}
-                                        />
+                        {
+                            limitReceivers.length > 1 ?
+                                <div className="w-[40px] h-[40px] rounded-full bg-gray-200 overflow-hidden relative">
+                                    <div className={`grid grid-cols-2 ${limitReceivers.length > 2 ? 'grid-cols-3' : 'grid-rows-1'} gap-1`}>
+                                        {
+                                            limitReceivers.map((receiver: Receiver) => (
+                                                <img key={receiver.id}
+                                                    className={` min-w-[${40 / limitReceivers.length}px] h-[${limitReceivers.length > 2 ? 40 / limitReceivers.length : 40}px] lg:mx-0 mx-auto object-cover`}
+                                                    width={40 / limitReceivers.length}
+                                                    height={limitReceivers.length > 2 ? 40 / limitReceivers.length : 40}
+                                                    src={useUploadsUrl(receiver.image || "")}
+                                                />
+                                            ))
+                                        }
+
                                     </div>
-                                ))
-                            }
-
-                        </div>
-
-                        <div className="ml-3  text-[18px] text-white sm:text-gray-600 flex items-center justify-between">
-                            <div className="">
-                                <p className={`text-[15px] ${isSeen ? 'font-normal' : 'font-semibold'} `}>{conversation.conversation_name || conversation.receivers[0].name}</p>
-                                <p className={`text-[13px] ${isSeen ? 'font-normal' : 'font-semibold'} text-white sm:text-black line-clamp-1 `}>{latestMessage.message}</p>
-                                <span className="text-[12px] text-gray-300 sm:text-gray-600 font-light sm:ml-1">
-                                    {moment(latestMessage?.created_at).calendar()}
-                                </span>
-                            </div>
-                            {/* 
-                            {contextUser?.user?.id == conversation.profile.user_id ? (
-                                <button
-                                    disabled={isDeleting}
-                                    onClick={() => deleteThisComment()}
-                                >
-                                    {isDeleting
-                                        ? <BiLoaderCircle className="animate-spin" color="#E91E62" size="20" />
-                                        : <BsTrash3 className="cursor-pointer" size="16" />
+                                </div>
+                                :
+                                <div className="inline-flex">
+                                    {
+                                        conversation.receivers.map((receiver: Receiver) => (
+                                            <div key={receiver.id} onClick={onClickProfile} className="cursor-pointer group-user">
+                                                <img
+                                                    className="rounded-full min-w-[40px] h-[40px] lg:mx-0 mx-auto"
+                                                    width={"40"}
+                                                    height={"40"}
+                                                    src={useUploadsUrl(receiver.image || "")}
+                                                />
+                                            </div>
+                                        ))
                                     }
-                                </button>
-                            ) : null} */}
 
-                        </div>
-
+                                </div>
+                        }
 
 
+                        {
+                            latestMessage && (
+                                <div className="ml-3  text-[18px] text-white sm:text-gray-600 flex items-center justify-between">
+                                    <div className="">
+                                        <p className={`text-[15px]  ${isSeen ? 'font-normal' : 'font-semibold'}`}>{conversation.conversation_name || conversation.receivers.map((receiver: Receiver) => receiver.name).join(', ')}</p>
+
+                                        <p className={`text-[13px] ${isSeen ? 'font-normal' : 'font-semibold'} text-white sm:text-black line-clamp-1 `}>{latestMessage.message}</p>
+                                        <span className="text-[12px] text-gray-300 sm:text-gray-600 font-light sm:ml-1">
+                                            {moment(latestMessage?.created_at).calendar()}
+                                        </span>
+                                    </div>
+                                </div>
+                            )
+
+                        }
 
                     </div>
                 </div>

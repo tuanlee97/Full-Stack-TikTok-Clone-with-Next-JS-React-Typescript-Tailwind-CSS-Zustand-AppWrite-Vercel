@@ -1,5 +1,8 @@
 "use client"
+import FileUploadWithIcon from "@/app/components/message/FileUpload";
+import UploadDisplay from "@/app/components/message/UploadDisplay";
 import { useUser } from "@/app/context/user";
+import useGenerateThumbnail from "@/app/hooks/useGenerateThumbnail";
 import useGetMessageByConversationId from "@/app/hooks/useGetMessageByReceiverId";
 import useSendMessage from "@/app/hooks/useSendMessage";
 import useUnsendMessage from "@/app/hooks/useUnsendMessage";
@@ -8,11 +11,9 @@ import useUploadsUrl from "@/app/hooks/useUploadsUrl";
 import useWebSocket from "@/app/hooks/useWebSocket";
 import { useGeneralStore } from "@/app/stores/general";
 import { Message, Profile, Receiver } from "@/app/types";
-import { debounce } from "debounce";
 import moment from "moment";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BsImage } from "react-icons/bs";
 import { CiClock2 } from "react-icons/ci";
 import { FaPaperPlane } from "react-icons/fa";
 import { HiArrowNarrowLeft } from "react-icons/hi";
@@ -24,10 +25,10 @@ export default function Inbox({ params }: { params: { id: number } }) {
     const router = useRouter()
     let { setIsLoginOpen } = useGeneralStore();
     const [messages, setMessages] = useState<Message[]>([]);
-    const inputRef = useRef<HTMLInputElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [conversationName, setConversationName] = useState<string>("")
     const [text, setText] = useState<string>("")
-    const [pending, setPending] = useState<boolean>(false)
+    const [files, setFiles] = useState<File[]>([]);
     const [receivers, setReceivers] = useState<Profile[]>([]);
 
     const [showMenu, setShowMenu] = useState<boolean>(false);
@@ -37,11 +38,20 @@ export default function Inbox({ params }: { params: { id: number } }) {
 
     const contextUser = useUser()
     const messagesEndRef = useRef<HTMLDivElement>(null);
-
+    const { generateThumbnails } = useGenerateThumbnail();
     // WebSocket reference
     // const wsRef = useRef<WebSocket | null>(null);
 
-
+    const handleFileSelected = (files: File[]) => {
+        setFiles((prevFiles) => [...prevFiles, ...files]);
+    }
+    const handleChangeFileSelected = (index: number) => {
+        setFiles((prevFiles) => {
+            const newFiles = [...prevFiles];
+            newFiles.splice(index, 1);
+            return newFiles;
+        });
+    }
     const { sendMessage, pendingMessages, newTempMessages, setNewTempMessages } = useWebSocket(contextUser?.user?.id || '');
 
 
@@ -74,7 +84,6 @@ export default function Inbox({ params }: { params: { id: number } }) {
     const fetchMessages = useCallback(async () => {
         try {
             const res = await useGetMessageByConversationId(params.id);
-
             setMessages(res.messages);
             setReceivers(res.receivers);
             setConversationName(res.conversation_name);
@@ -106,46 +115,129 @@ export default function Inbox({ params }: { params: { id: number } }) {
 
 
     const onChangeText = useCallback(
-        debounce((event: React.ChangeEvent<HTMLInputElement>) => {
+        (event: React.ChangeEvent<HTMLTextAreaElement>) => {
             setText(event.target.value);
-        }, 500), []);
+            adjustTextareaHeight();
+        }, []);
+    const handleGenerateThumbnails = async () => {
+        console.log(files)
+        const generatedThumbnails = await generateThumbnails(files);
+        const videos = generatedThumbnails.filter((thumbnail) => thumbnail.type === 'video');
+        const images = generatedThumbnails.filter((thumbnail) => thumbnail.type === 'image');
+        return {
+            videos,
+            images
+        };
+    };
     const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!text) return
-        setPending(true);
+        if (!text.trim() && (!files || files.length === 0)) return;
+
         const receiver_ids = receivers.map(item => parseInt(item.id));
-        const newMessage: Message = {
-            id: Math.random().toString(36).slice(2, 22),
-            sender_id: contextUser?.user?.id || '0',
-            conversation_id: params.id,
-            message: text,
-            created_at: new Date().toISOString(),
-            receiver_ids: receiver_ids,
-            hidden_id: []
-        };
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+        const medias = await handleGenerateThumbnails();
+        const listMessages: Message[] = [];
+        if (text.trim()) {
+            const newMessage = {
+                id: Math.random().toString(36).slice(2, 22),
+                sender_id: contextUser?.user?.id || '0',
+                conversation_id: params.id,
+                message: text,
+                created_at: new Date().toISOString(),
+                receiver_ids: receiver_ids,
+                hidden_id: []
+            }
+            listMessages.push(newMessage);
+            sendMessage(newMessage);
+            sendMessageToServer(newMessage, 'text');
+        }
+
+        if (medias.images.length > 0) {
+
+            files.forEach((file) => {
+                if (file.type.startsWith('image/')) {
+
+                }
+            });
+            const newMessage = {
+                id: Math.random().toString(36).slice(2, 22),
+                sender_id: contextUser?.user?.id || '0',
+                conversation_id: params.id,
+                message: '',
+                media: medias.images,
+                created_at: new Date().toISOString(),
+                receiver_ids: receiver_ids,
+                hidden_id: []
+            }
+            listMessages.push(newMessage)
+            sendMessage(newMessage);
+            sendMessageToServer(newMessage, 'image');
+        }
+        if (medias.videos.length > 0) {
+            medias.videos.map(item => {
+                const newMessage = {
+                    id: Math.random().toString(36).slice(2, 22),
+                    sender_id: contextUser?.user?.id || '0',
+                    conversation_id: params.id,
+                    message: '',
+                    media: [item],
+                    created_at: new Date().toISOString(),
+                    receiver_ids: receiver_ids,
+                    hidden_id: []
+                }
+                listMessages.push(newMessage);
+                sendMessage(newMessage);
+                sendMessageToServer(newMessage, 'video');
+            })
+
+        }
+
+
+        setMessages((prevMessages) => [...prevMessages, ...listMessages]);
 
         // Gửi tin nhắn qua WebSocket
-        sendMessage(newMessage);
+
         // Sau khi gửi tin nhắn qua WebSocket, gửi request HTTP tới backend để thêm tin nhắn vào cơ sở dữ liệu
+
+
+
+        if (textareaRef.current)
+            textareaRef.current.value = "";
+
+        setText("");
+        setFiles([]);
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+        }
+    }
+    const sendMessageToServer = async (message: Message, type: string = 'text | image | video') => {
         try {
-            await useSendMessage(newMessage.conversation_id, newMessage.message);
+            const formData = new FormData();
+            formData.append('type', type);
+            formData.append('conversationId', String(message.conversation_id));
+            if (message.message) formData.append('message', message.message);
+
+            if (message.media) {
+                message.media.forEach((media, index) => {
+                    formData.append(`files[${index}]`, media.file);
+                });
+            }
+
+
+            console.log(formData)
+            await useSendMessage(formData);
             console.log('Message added to backend successfully');
         } catch (error) {
             console.error('Failed to add message to backend:', error);
         }
 
-        if (inputRef.current)
-            inputRef.current.value = "";
-
-        setText("");
-        setPending(false);
     }
 
     useEffect(() => {
         setMessages((prevMessages) => [...prevMessages, ...newTempMessages]);
         if (newTempMessages.length > 0)
             setNewTempMessages([]);
+
     }, [newTempMessages])
 
     const checkSeenBy = (messages: Message[], currentUserId: string) => {
@@ -160,7 +252,12 @@ export default function Inbox({ params }: { params: { id: number } }) {
         return isUpdate;
     }
 
-
+    const adjustTextareaHeight = () => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    };
 
     useEffect(() => {
         let currentUserId = contextUser?.user?.id || '';
@@ -171,11 +268,16 @@ export default function Inbox({ params }: { params: { id: number } }) {
         if (isUpdate) useUpdateSeenMessage(params.id);
 
     }, [contextUser?.user?.id, messages])
-    const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
+    const handleEnter = (e: React.KeyboardEvent<HTMLTextAreaElement> | React.MouseEvent) => {
+        if ('key' in e && e.key === 'Enter') {
+            if (e.shiftKey) return;
+            handleSendMessage(e as any);  // Gọi hàm gửi tin nhắn
+
+        } else if (!('key' in e)) {
+            // Nếu là sự kiện click chuột, gửi tin nhắn
             handleSendMessage(e as any);
         }
-    }
+    };
 
     //Menu Context
 
@@ -229,11 +331,19 @@ export default function Inbox({ params }: { params: { id: number } }) {
         });
         fetchMessages();
     }
-
+    const isBase64 = (url: string): boolean => {
+        const regex = /^data:(image\/|video\/)[a-zA-Z]*;base64,/;
+        return regex.test(url);
+    };
+    const receiversObj = receivers.reduce((acc: Record<string, Profile>, receiver: Profile) => {
+        acc[receiver.id] = receiver;
+        return acc;
+    }, {});
+    console.log(messages)
     return (
         <section className="flex flex-col h-screen bg-[#181818]">
             {/* Header */}
-            <div className="fixed top-0 left-0 w-full bg-black py-4 px-6 text-white flex items-center gap-5">
+            <div className="fixed z-10 top-0 left-0 w-full bg-black py-4 px-6 text-white flex items-center gap-5">
                 <HiArrowNarrowLeft className="cursor-pointer" onClick={() => router.push(`/inbox`)} size={24} />
                 <div className="flex items-center gap-3 relative w-full">
 
@@ -245,7 +355,7 @@ export default function Inbox({ params }: { params: { id: number } }) {
                             src={useUploadsUrl("")}
                         />
                     </div>
-                    <p className="text-[18px] font-semibold ">
+                    <p className="text-[18px] font-semibold truncate">
 
                         {conversationName || receivers.map((receiver: Receiver) => receiver.name).join(', ')}
                     </p>
@@ -265,9 +375,23 @@ export default function Inbox({ params }: { params: { id: number } }) {
                                 onTouchStart={() => handleTouchStart(_.id)}
                                 onTouchEnd={handleTouchEnd}
 
-                                className={`w-full ${conversationSelected !== _.id && showMenu ? 'blur-sm' : ''}`}>
+                                className={`w-full inline-flex gap-1 ${conversationSelected !== _.id && showMenu ? 'blur-sm' : ''}`}>
+                                {
+                                    contextUser?.user?.id !== String(_.sender_id) &&
+                                    <img src={useUploadsUrl(receiversObj[_.sender_id]?.image || "")} className="rounded-full min-w-[24px] h-[24px]" width={"24"} height={"24"} />
+                                }
+
                                 <div className={`relative text-white py-2 px-4 rounded-lg w-1/2 ${contextUser?.user?.id === String(_.sender_id) ? "ml-auto bg-[#D3427A] " : "mr-auto bg-gray-600"}`}>
-                                    {_.message}
+                                    {_.message && <p className="mb-0" dangerouslySetInnerHTML={{ __html: _.message.replace(/\n/g, '<br />') }} />}
+                                    {_.media && (
+                                        <div className={`${_.media.length > 1 ? 'grid grid-cols-2 gap-2' : ''} w-full`}>
+                                            {_.media.map((media, index) => (
+                                                media.type === 'image' ? <img key={index} src={isBase64(media.url) ? media.url : useUploadsUrl(media.url)} className="w-full rounded-xl" />
+                                                    : <video poster={isBase64(media.url) ? media.url : ``} key={index} src={isBase64(media.url) ? media.url : useUploadsUrl(media.url)} className="w-full rounded-xl object-cover" controls />
+
+                                            ))}
+                                        </div>
+                                    )}
                                     <p className="text-[10px] text-right">{moment(_.created_at).calendar()}</p>
                                     {conversationSelected === _.id && showMenu && (
                                         <div
@@ -321,24 +445,24 @@ export default function Inbox({ params }: { params: { id: number } }) {
 
             {/* Footer (Input Area) */}
             <div className="fixed bottom-0 left-0 w-full bg-black px-4 py-4">
-                <form className="bg-[#181818] rounded-full" onSubmit={handleSendMessage}>
+                <form className="bg-[#181818] rounded-[20px]" onSubmit={handleSendMessage}>
                     <div className="flex items-center gap-3 px-2">
-                        <input
+                        <textarea
                             onKeyUp={handleEnter}
-                            ref={inputRef}
-                            type="text"
-                            className="w-full p-2 rounded-lg border-none bg-transparent focus:outline-none accent-white text-white py-3 px-5"
+                            ref={textareaRef}
+                            className="w-full p-2 resize-none border-none bg-transparent focus:outline-none accent-white text-white py-3 px-5"
                             placeholder="Type a message..."
                             onChange={onChangeText}
-                        />
-                        <button className={`cursor-pointer ${text.length > 0 ? "bg-[#D3427A]" : ""} rounded-full`}>
-                            {text.length > 0 ?
-                                <FaPaperPlane color="#FFFFFF" size={36} className="p-2" />
-                                :
-                                <BsImage color={"#FFFFFF"} size={36} className="p-2" />
-                            }
+                            rows={1}
+                        ></textarea>
+
+                        <FileUploadWithIcon handleFileSelected={handleFileSelected} />
+                        <button disabled={!text.length && !files.length} className={`cursor-pointer ${!text.length && !files.length ? "cursor-not-allowed" : ""} ${text.length || files.length ? "bg-[#D3427A]" : ""} rounded-full`}>
+                            <FaPaperPlane onClick={handleEnter} color="#FFFFFF" size={36} className="p-2" />
                         </button>
                     </div>
+                    {/* Hiển thị ảnh đã chọn */}
+                    <UploadDisplay handleChange={handleChangeFileSelected} files={files} />
                 </form>
             </div>
         </section>
