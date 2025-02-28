@@ -22,6 +22,7 @@ const config: Config = {
         'zoom-in-out': 'zoomInOut 1.5s ease-in-out infinite',
         'slide-up': 'slideUp 0.3s ease-out',
         'slide-down': 'slideDown 0.5s ease-out',
+        'slide-right': 'slideRight 0.3s ease-out',
         'wave': 'wave  1.5s ease-in-out infinite',
         'expandWidth': 'expandWidth 2.5s ease-in-out',
       },
@@ -87,6 +88,10 @@ const config: Config = {
         slideUp: {
           '0%': { transform: 'translateY(100%)', opacity: '0' }, // Bắt đầu từ dưới và mờ đi
           '100%': { transform: 'translateY(0)', opacity: '1' },    // Cuối cùng là ở vị trí gốc và hiện lên
+        },
+        slideRight: {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
         },
         slideDown: {
           '0%': { transform: 'translateY(0%)', opacity: '1' }, // Bắt đầu từ dưới và mờ đi

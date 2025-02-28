@@ -63,16 +63,17 @@ const CreateChat = ({ fetchConversations, toggleModal }: CreateChatProps) => {
             toggleModal();
         }
     }
+
     return (
-        <section className="bg-[#181818] h-[calc(100dvh-100px)] ">
+        <section className="bg-[#181818] sm:bg-inherit h-[calc(100dvh-100px)] sm:h-full">
             <div className="wrapper pt-[80px] flex flex-col">
                 <div className="px-5">
-                    <div className="bg-white mb-5 py-[4px] px-[6px]  flex items-center justify-evenly rounded-full overflow-hidden">
+                    <div className="bg-white mb-5 py-[4px] px-[6px]  flex items-center justify-evenly rounded-full sm:border overflow-hidden">
                         <input onChange={handleSearchName} type="text" placeholder="Type name to search" className="w-full py-2 px-3 border border-none rounded focus:outline-none text-black outline-[#D3427A]" />
-                        <button className="min-w-[40px] h-[40px] rounded-full bg-[#D3427A] flex items-center justify-center"><IoIosSearch size={28} /> </button>
+                        <button className="min-w-[40px] h-[40px] rounded-full bg-[#D3427A] flex items-center justify-center"><IoIosSearch className="sm:text-white" size={28} /> </button>
                     </div>
                 </div>
-                <ul className="ml-0 list-none overflow-scroll h-[calc(100dvh-350px)]">
+                <ul className="ml-0 list-none overflow-scroll h-[calc(100dvh-350px)] sm:h-full sm:min-h-[300px] sm:max-h-[400px] sm:overflow-auto">
 
                     {searchProfiles.length > 0 ?
                         <div className="w-full">
@@ -104,7 +105,7 @@ const CreateChat = ({ fetchConversations, toggleModal }: CreateChatProps) => {
 
 
             </div>
-            <div className="fixed bottom-0 bg-black w-full p-5">
+            <div className="fixed sm:static bottom-0 bg-black sm:bg-inherit w-full p-5 ">
                 <button disabled={listUserIds.length === 0 || isPendingCreateConversation} onClick={handleCreateConversation}
                     className={`${listUserIds.length === 0 || isPendingCreateConversation ? `bg-[#D3427A]/50 text-white/50 cursor-not-allowed` : `bg-[#D3427A] text-white`} w-full  p-4 rounded-md font-medium`}>
                     {isPendingCreateConversation ? <span className="flex items-center justify-center"><BiLoaderCircle className="animate-spin text-center" color="#ffffff" size={25} /></span> : `Start a conversation${listUserIds.length > 1 ? ` (${listUserIds.length})` : ''}`}

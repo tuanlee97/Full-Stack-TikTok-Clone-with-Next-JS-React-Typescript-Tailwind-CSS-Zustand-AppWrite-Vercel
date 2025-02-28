@@ -5,6 +5,10 @@ export interface UserContextTypes {
     logout: () => Promise<void>;
     checkUser: () => Promise<void>;
 }
+export interface DetailModalProps {
+    conversation: { id: number; name: string; members: number[]; };
+    setConversationName: (name: string) => void;
+}
 export interface VideoContextType {
     currentIndex: number;
     setCurrentIndex: (index: number) => void;
@@ -31,7 +35,8 @@ export interface Receiver {
 export interface Thumbnail {
     url: string;
     type: 'image' | 'video';
-    file: File;
+    file?: File;
+    thumbnail?: string
 }
 export interface Message {
     id: string;
@@ -39,8 +44,8 @@ export interface Message {
     conversation_id: number;
     message: string;
     seen_by?: number[];
-    hidden_id: string[];
-    media?: Thumbnail[];
+    hidden_id: number[];
+    medias?: Thumbnail[];
     status?: string;
     isDelete?: boolean;
     delete_at?: string;
@@ -54,6 +59,7 @@ export interface Conversation {
     messages: Message[];
     receivers: Receiver[];
 }
+
 export interface Profile {
     id: string;
     user_id: string;

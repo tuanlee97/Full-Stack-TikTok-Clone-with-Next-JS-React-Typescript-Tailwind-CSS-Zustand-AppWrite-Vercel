@@ -260,7 +260,7 @@ const PostMainLikes = ({ post, togglePlayPause, onModalClose }: PostMainLikesCom
                         </div>
                         <span className="text-xs text-white sm:text-gray-800 font-semibold">{commentsByPost[post.id]?.length || 0}</span>
                     </button>
-                    <Modal isOpen={isModalOpen} onClose={closeModal}>
+                    <Modal isOpen={isModalOpen} onClose={closeModal} customClassName="animate-slide-up sm:animate-none">
                         <ModalPost post={post} closeModal={closeModal} videoRef={videoRef} />
                     </Modal>
                     <button className="text-center" onClick={() => openModalShare(post?.profile?.user_id, post?.id)}>
